@@ -1,0 +1,56 @@
+
+<div class="container-fluid">
+  <div class="row m-2">
+      <div class="col" id="topbar">
+          <button class="action-button esri-icon-blank-map-pin m-1" type="button" title="Draw a point" id="pointButton" #pointButton (click)="drawGrahic($event)"></button>
+          <button class="action-button esri-icon-polyline m-1" type="button" title="Draw a polyline" id="polylineButton" #polylineButton (click)="drawGrahic($event)"></button>
+          <button class="action-button esri-icon-polygon m-1" type="button" title="Draw a polygon" id="polygonButton" #polygonButton (click)="drawGrahic($event)"></button>            
+          <button class="action-button esri-icon-trash m-1"  type="button" title="Clear the selected graphic" id="resetButton" #resetButton (click)="drawGrahic($event)"></button>           
+          <button class="btn btn-sm m-1 dropdown-toggle btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">Change comments and title</button>
+          <button class="btn btn-sm m-1 dropdown-toggle btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample2" aria-expanded="false" aria-controls="collapseExample2" title="Choose color" id="chooseColor" #chooseColor > Select color</button>            
+          <div class="collapse" id="collapseExample">
+            <input  class="m-1" id="changeTitle">&nbsp;&nbsp;
+            <button class="m-1 btn btn-secondary btn-sm" type="button" title="Change title" id="" (click)="changeTitle()"> Change title</button><br>
+            <input  class="m-1" id="changeComments">&nbsp;&nbsp;
+            <button class="m-1 btn btn-secondary btn-sm" type="button" title="Change comments" id="" (click)="changeComments()"> Change comments</button>              
+            <p class="hide" style="color:green" id="succesTitle">Title changed</p>
+            <p class="hide" style="color:green" id="succesComments">Comments changed</p>
+          </div>
+          <div class="collapse" id="collapseExample2">
+              <label for="color">Your color:&nbsp;&nbsp; </label>
+              <input type="color" id="color" name="color" #chooseColor2/>&nbsp;&nbsp;
+              <button class="m-1 btn btn-secondary btn-sm" type="button" title="" id="" (click)="changeColor(chooseColor2.value)"> Apply</button>              
+          </div>
+          <button (click)="test()" class="mx-1">Log MapView</button>
+          <button (click)="test2()" class="mx-1">Log Elses</button>
+
+          <button (click)="saveGraphics()" class="mx-1">Save Graphics</button>
+          <button (click)="loadGraphics()" class="mx-1">Load Graphics</button>
+          <button (click)="deleteGraphics()" class="mx-1">Delete Graphics</button>
+
+      </div> 
+  </div>
+  <div class="row m-2">
+    <div class="col-lg-2 order-4 order-lg-1 scroll mt-5 mt-lg-2">
+      <button type="button" (click)="get()">Get</button>
+      <p>kind of selected region</p>    
+      <p>get current and future weather conditions + notifications</p>
+      <hr>
+      <p>get air quality measurements</p>
+      <p>get fire danger </p>
+      <p>acid rain occurrence</p>
+      <hr>
+      <p>get quality of soil </p>
+      <p>get water availability</p>
+      <p>be informed for any pests or diseases</p>
+      <div #fire>asd</div>
+
+      </div>
+    <div class="col-lg-1 order-2 order-lg-2 my-4 my-lg-0"></div>
+    <div class="col-lg-8 order-1 order-lg-3" id="mapViewNode" #mapViewNode>        
+    </div>
+    <div  class="col-lg-1 order-3 order-lg-4" id="layers">
+      <input type="checkbox" checked #streetsLayer> Transportation <br>
+    </div>
+  </div>
+</div>

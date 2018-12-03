@@ -1,0 +1,22 @@
+a {
+    cursor: pointer;
+    color: white !important;
+}
+
+a:hover{
+    color: #ff9f80 !important;
+}
+
+.active-link {
+    color: #ff9f80 !important;
+}
+
+/* .dropdown-menu {
+    background-color:#343a40;
+    margin: 0px;
+    padding: 0px;
+}
+
+.dropdown-menu .dropdown-item:hover {
+    background-color:#73808c;
+} */
