@@ -37,7 +37,7 @@ export class SelectAreaComponent implements OnInit {
 
   async initializeMap() {
     try {
-      const [EsriMap, EsriMapView, TileLayer, on, BasemapToggle,SketchViewModel,GraphicsLayer,Graphic, SpatialReference,Extent] = await loadModules([
+      const [EsriMap, EsriMapView, TileLayer, on, BasemapToggle,SketchViewModel,GraphicsLayer,Graphic, SpatialReference, Extent, KMLLayer] = await loadModules([
         'esri/Map',
         'esri/views/MapView',
         "esri/layers/TileLayer",
@@ -47,7 +47,8 @@ export class SelectAreaComponent implements OnInit {
         "esri/layers/GraphicsLayer",
         'esri/Graphic',
         'esri/geometry/SpatialReference',
-        'esri/geometry/Extent'
+        'esri/geometry/Extent',
+        "esri/layers/KMLLayer"
       ]);    
 
       //set up layers
@@ -58,11 +59,19 @@ export class SelectAreaComponent implements OnInit {
       });   
       this.tempGraphicsLayer = new GraphicsLayer();  
 
+      var kmllayer = new KMLLayer({
+        // major earthquakes for latest 30 days from USGS
+        //url: "https://earthquake.usgs.gov/fdsnws/event/1/query?format=kml&minmagnitude=5.8"
+        //url: "https://sleepy-brook-85346.herokuapp.com/downloadFile/lines.kml"
+        // url: "https://sleepy-brook-85346.herokuapp.com/downloadFile/KML_Samples.kml"  
+        url: "https://sleepy-brook-85346.herokuapp.com/downloadFile/instabul.kml"      
+      });
+
 
       //set up map    
       var map: esri.Map = new EsriMap({
         basemap: 'topo',
-        layers: [transportationLayer, this.tempGraphicsLayer]
+        layers: [transportationLayer, this.tempGraphicsLayer, kmllayer]
       });     
 
       //set up mapview  
