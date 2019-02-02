@@ -40,7 +40,7 @@ export class SelectAreaComponent implements OnInit {
       const [EsriMap, EsriMapView, TileLayer, on, BasemapToggle,SketchViewModel,GraphicsLayer,Graphic, SpatialReference, Extent, KMLLayer] = await loadModules([
         'esri/Map',
         'esri/views/MapView',
-        "esri/layers/TileLayer",
+        "esri/layers/TileLayer", 
         "dojo/on",
         "esri/widgets/BasemapToggle",
         "esri/widgets/Sketch/SketchViewModel",
