@@ -6,7 +6,7 @@ import { Point } from './../../point.model';
 
 import { PointserviceService } from './../../pointservice.service';
 
-import * as $ from 'jquery';
+// import * as $ from 'jquery';
 
 @Component({
   selector: 'app-select-area',
@@ -30,9 +30,6 @@ export class SelectAreaComponent implements OnInit {
 
   ngOnInit() {      
     this.initializeMap();
-  }
-
-  ngOnDestroy() {
   }
 
   async initializeMap() {
@@ -162,17 +159,19 @@ export class SelectAreaComponent implements OnInit {
       }); 
 
     } catch (error) {
-      console.log('We have an error loading the Map View: ' + error);
+      console.log('Error loading the Map View: ' + error);
     }
 
   } //initializeMap() end  
 
   drawGrahic(event) {   
+    console.log(event);
+    
     let buttonId = event.srcElement.id;
     
     switch (buttonId) { 
       case "pointButton": {
-        this.sketchViewModel.create("point");        
+        this.sketchViewModel.create("point"); 
          break; 
       } 
 
@@ -594,7 +593,7 @@ export class SelectAreaComponent implements OnInit {
   test2() {  
   }
 
-  get() {
+  onGet() {
     this.fireEl.nativeElement.innerText = "?";
 
     }

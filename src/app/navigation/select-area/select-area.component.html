@@ -1,56 +1,91 @@
 
 <div class="container-fluid">
-  <div class="row m-2">
-      <div class="col" id="topbar">
-          <button class="action-button esri-icon-blank-map-pin m-1" type="button" title="Draw a point" id="pointButton" #pointButton (click)="drawGrahic($event)"></button>
-          <button class="action-button esri-icon-polyline m-1" type="button" title="Draw a polyline" id="polylineButton" #polylineButton (click)="drawGrahic($event)"></button>
-          <button class="action-button esri-icon-polygon m-1" type="button" title="Draw a polygon" id="polygonButton" #polygonButton (click)="drawGrahic($event)"></button>            
-          <button class="action-button esri-icon-trash m-1"  type="button" title="Clear the selected graphic" id="resetButton" #resetButton (click)="drawGrahic($event)"></button>           
-          <button class="btn btn-sm m-1 dropdown-toggle btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">Change comments and title</button>
-          <button class="btn btn-sm m-1 dropdown-toggle btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample2" aria-expanded="false" aria-controls="collapseExample2" title="Choose color" id="chooseColor" #chooseColor > Select color</button>            
-          <div class="collapse" id="collapseExample">
-            <input  class="m-1" id="changeTitle">&nbsp;&nbsp;
-            <button class="m-1 btn btn-secondary btn-sm" type="button" title="Change title" id="" (click)="changeTitle()"> Change title</button><br>
-            <input  class="m-1" id="changeComments">&nbsp;&nbsp;
-            <button class="m-1 btn btn-secondary btn-sm" type="button" title="Change comments" id="" (click)="changeComments()"> Change comments</button>              
-            <p class="hide" style="color:green" id="succesTitle">Title changed</p>
-            <p class="hide" style="color:green" id="succesComments">Comments changed</p>
-          </div>
-          <div class="collapse" id="collapseExample2">
-              <label for="color">Your color:&nbsp;&nbsp; </label>
-              <input type="color" id="color" name="color" #chooseColor2/>&nbsp;&nbsp;
-              <button class="m-1 btn btn-secondary btn-sm" type="button" title="" id="" (click)="changeColor(chooseColor2.value)"> Apply</button>              
-          </div>
-          <button (click)="test()" class="mx-1">Log MapView</button>
-          <button (click)="test2()" class="mx-1">Log Elses</button>
-
-          <button (click)="saveGraphics()" class="mx-1">Save Graphics</button>
-          <button (click)="loadGraphics()" class="mx-1">Load Graphics</button>
-          <button (click)="deleteGraphics()" class="mx-1">Delete Graphics</button>
-
-      </div> 
+  <div class="row mt-2 text-right">
+    <div class="col-12">
+      <button (click)="test()" class="mx-1">Log MapView</button>
+      <button (click)="test2()" class="mx-1">Log Elses</button>
+      <button (click)="saveGraphics()" class="mx-1">Save Graphics</button>
+      <button (click)="loadGraphics()" class="mx-1">Load Graphics</button>
+      <button (click)="deleteGraphics()" class="mx-1">Delete Graphics</button>
+    </div>      
   </div>
-  <div class="row m-2">
-    <div class="col-lg-2 order-4 order-lg-1 scroll mt-5 mt-lg-2">
-      <button type="button" (click)="get()">Get</button>
-      <p>kind of selected region</p>    
-      <p>get current and future weather conditions + notifications</p>
+  <div class="row mt-2">
+      <div class="col-12">
+          <input type="checkbox" checked #streetsLayer/> Transportation
+      </div>      
+    </div>
+  <div class="row mt-3">
+    <div class="col-lg-2">
+      <!-- section navbar -->
+      <label for="esri-icons-navbar" class="font-weight-bold row">Select an icon</label>
+      <section class="text-left row" id="esri-icons-navbar">
+          <button class="action-button esri-icon-blank-map-pin mr-2" type="button" title="Draw a point" id="pointButton" #pointButton (click)="drawGrahic($event)"></button>
+          <button class="action-button esri-icon-polyline mr-2" type="button" title="Draw a polyline" id="polylineButton" #polylineButton (click)="drawGrahic($event)"></button>
+          <button class="action-button esri-icon-polygon mr-2" type="button" title="Draw a polygon" id="polygonButton" #polygonButton (click)="drawGrahic($event)"></button>            
+          <button class="action-button esri-icon-trash mr-2"  type="button" title="Select a graphic and clear it by pressing this button" id="resetButton" #resetButton (click)="drawGrahic($event)"></button>   
+      </section>
+      <!-- section Change comments and title -->
       <hr>
-      <p>get air quality measurements</p>
-      <p>get fire danger </p>
-      <p>acid rain occurrence</p>
+      <section>
+          <button class="btn btn-sm dropdown-toggle btn-primary row" type="button" data-toggle="collapse" data-target="#areaTexts" aria-expanded="false" aria-controls="areaTexts">Change comments and title</button>
+          <fieldset id="areaTexts" class="collapse">
+              <label for="changeTitle" class="font-weight-bold row">Title</label>
+              <div class="row justify-content-between">
+                <input  class="m-1 col-6" id="changeTitle"/>
+                <button class="m-1 col-4 btn btn-primary btn-sm" type="button" title="Change title" id="" (click)="changeTitle()">Save title</button>
+              </div>
+              <hr>
+              <label for="changeComments" class="font-weight-bold row">Comments</label>   
+              <div class="row">
+                <textarea  class="m-1 col-12" id="changeComments" maxlength rows="6"></textarea>
+                <button class="m-1 btn btn-primary btn-sm" type="button" title="Change comments" id="" (click)="changeComments()">Save comments</button>             
+              </div>
+              <p class="hide" style="color:green" id="succesTitle">Title changed</p>
+              <p class="hide" style="color:green" id="succesComments">Comments changed</p>
+          </fieldset>
+      </section>
+      <!-- section Select color-->
       <hr>
-      <p>get quality of soil </p>
-      <p>get water availability</p>
-      <p>be informed for any pests or diseases</p>
-      <div #fire>asd</div>
-
+      <section>
+          <button class="btn btn-sm dropdown-toggle btn-primary row" type="button" data-toggle="collapse" data-target="#areaColor" aria-expanded="false" aria-controls="areaColor">Change color</button>
+          <div id="areaColor" class="collapse">
+              <label for="areaColor"  class="font-weight-bold row">Select color</label>         
+              <div id="color" class="row justify-content-between m-2">
+                  <input type="color" id="color" name="color" class="col-4 mt-2 mt-lg-0" #chooseColor2/>
+                  <button class="btn btn-primary btn-sm col-6 ml-2 mt-2 mt-lg-0" type="button" title="" id="" (click)="changeColor(chooseColor2.value)">Save color</button>              
+              </div>
+          </div>          
+      </section>    
+      <hr>     
+    </div>
+    <!-- map -->
+    <main class="col-lg-10">
+      <div class="row">
+        <section class="col-lg-9 my-3 my-lg-0">
+            <div id="mapViewNode" #mapViewNode></div>
+        </section>
+        <!-- section data from external apis-->
+        <section class="col-lg-3">
+          <button class="btn btn-primary btn-sm" type="button" (click)="onGet()">Get Smth</button>
+          <p #fire></p>
+          <p>kind of selected region</p>    
+          <p>get current and future weather conditions + notifications</p>
+          <hr>
+          <p>get air quality measurements</p>
+          <p>get fire danger </p>
+          <p>acid rain occurrence</p>
+          <hr>
+          <p>get quality of soil </p>
+          <p>get water availability</p>
+          <p>be informed for any pestdasdsdsdsdsdsdsdsdsdsdsasasasasasasasasasasasass or diseases</p>
+          <p>be informed for any pestdasdsdsdsdsdsdsdsdsdsdsasasasasasasasasasasasass or diseases</p>
+          <p>be informed for any pestdasdsdsdsdsdsdsdsdsdsdsasasasasasasasasasasasass or diseases</p>
+          <p>be informed for any pestdasdsdsdsdsdsdsdsdsdsdsasasasasasasasasasasasass or diseases</p>
+          <p>be informed for any pestdasdsdsdsdsdsdsdsdsdsdsasasasasasasasasasasasass or diseases</p>
+        </section>
       </div>
-    <div class="col-lg-1 order-2 order-lg-2 my-4 my-lg-0"></div>
-    <div class="col-lg-8 order-1 order-lg-3" id="mapViewNode" #mapViewNode>        
-    </div>
-    <div  class="col-lg-1 order-3 order-lg-4" id="layers">
-      <input type="checkbox" checked #streetsLayer> Transportation <br>
-    </div>
+    </main>
   </div>
-</div>
+
+</div> 
+<!-- end container-fluid -->
