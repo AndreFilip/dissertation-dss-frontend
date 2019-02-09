@@ -1,6 +1,7 @@
 import { Component, OnInit ,ElementRef,ViewChild} from '@angular/core';
 import { loadModules } from 'esri-loader';
 import esri = __esri;
+
 import { Color } from './../../color.model';
 import { Point } from './../../point.model';
 
@@ -20,13 +21,16 @@ export class SelectAreaComponent implements OnInit {
   private tempGraphicsLayer: esri.GraphicsLayer;
   private sketchViewModel: esri.SketchViewModel;
 
-  private deleteGraphic: esri.Graphic;
+  private selectedGraphic: esri.Graphic;
 
   @ViewChild('mapViewNode') private mapViewEl: ElementRef;
   @ViewChild('streetsLayer') private streetsLayerEl: ElementRef;
   @ViewChild('fire') private fireEl: ElementRef;
 
   constructor(private pointserviceService: PointserviceService) { }
+
+  private herokuhost:string = "https://sleepy-brook-85346.herokuapp.com";
+  private localhost:string = "localhost:8080";
 
   ngOnInit() {      
     this.initializeMap();
@@ -56,12 +60,9 @@ export class SelectAreaComponent implements OnInit {
       });   
       this.tempGraphicsLayer = new GraphicsLayer();  
 
-      var kmllayer = new KMLLayer({
-        // major earthquakes for latest 30 days from USGS
-        //url: "https://earthquake.usgs.gov/fdsnws/event/1/query?format=kml&minmagnitude=5.8"
-        //url: "https://sleepy-brook-85346.herokuapp.com/downloadFile/lines.kml"
-        // url: "https://sleepy-brook-85346.herokuapp.com/downloadFile/KML_Samples.kml"  
-        url: "https://sleepy-brook-85346.herokuapp.com/downloadFile/instabul.kml"      
+      var kmllayer = new KMLLayer({              
+        url: this.herokuhost + "/downloadFile/KML_Samples.kml"
+        // url: this.host + "/downloadFile/lines.kml"
       });
 
 
@@ -149,11 +150,11 @@ export class SelectAreaComponent implements OnInit {
         function updateGraphic(event) {           
             event.graphic.geometry = event.geometry;
             thisS.tempGraphicsLayer.add(event.graphic);
-            thisS.tempGraphicsLayer.graphics.remove(thisS.deleteGraphic);
+            thisS.tempGraphicsLayer.graphics.remove(thisS.selectedGraphic);
             this.mapView.goTo({
               target: this.mapView.center ,
             });
-            thisS.deleteGraphic = event.graphic;
+            thisS.selectedGraphic = event.graphic;
         }
         this.setUpClickHandler();
       }); 
@@ -164,6 +165,7 @@ export class SelectAreaComponent implements OnInit {
 
   } //initializeMap() end  
 
+  //draw a point/polyline/polygon/delete a graphic from view
   drawGrahic(event) {   
     console.log(event);
     
@@ -186,24 +188,24 @@ export class SelectAreaComponent implements OnInit {
       } 
 
       case "resetButton": {       
-        if (this.deleteGraphic) {
+        if (this.selectedGraphic) {
           let what = confirm("Are you sure you want to delete the selected graphic?");
           if (what) {          
-            if (this.deleteGraphic.attributes.idReturned === undefined) {
-              console.log(this.deleteGraphic.attributes.idReturned);
+            if (this.selectedGraphic.attributes.idReturned === undefined) {
+              console.log(this.selectedGraphic.attributes.idReturned);
               
-              this.tempGraphicsLayer.graphics.remove(this.deleteGraphic);
+              this.tempGraphicsLayer.graphics.remove(this.selectedGraphic);
               this.mapView.goTo({
                 target: this.mapView.center ,
               });
-              this.deleteGraphic == null;   
+              this.selectedGraphic == null;   
             } else {
-              this.pointserviceService.deleteGraphic(this.deleteGraphic.attributes.idReturned).subscribe(results => {
-                console.log(this.deleteGraphic.attributes.idReturned);
+              this.pointserviceService.deleteGraphic(this.selectedGraphic.attributes.idReturned).subscribe(results => {
+                console.log(this.selectedGraphic.attributes.idReturned);
 
                 console.log("Deleted 1 graphic?");
-                this.tempGraphicsLayer.graphics.remove(this.deleteGraphic);
-                this.deleteGraphic == null;   
+                this.tempGraphicsLayer.graphics.remove(this.selectedGraphic);
+                this.selectedGraphic == null;   
                 
                 this.mapView.goTo({
                   target: this.mapView.center ,
@@ -230,6 +232,7 @@ export class SelectAreaComponent implements OnInit {
    } 
   
   } //end drawGrahic()    
+
 
   async drawGraphicAfterLoading(graphicFromServer) {    
 
@@ -273,6 +276,7 @@ export class SelectAreaComponent implements OnInit {
     }); 
     this.tempGraphicsLayer.graphics.add(point); 
     }  
+
     if (graphicFromServer.type == "polyline") { 
     let r = graphicFromServer.color.r;
     let g = graphicFromServer.color.g;
@@ -358,26 +362,26 @@ export class SelectAreaComponent implements OnInit {
       'esri/Color'      
     ]);      
     
-    if (this.deleteGraphic && this.deleteGraphic.symbol.declaredClass == "esri.symbols.SimpleMarkerSymbol") {
-      (<esri.SimpleMarkerSymbol> this.deleteGraphic.symbol).color = new Color(value);
+    if (this.selectedGraphic && this.selectedGraphic.symbol.declaredClass == "esri.symbols.SimpleMarkerSymbol") {
+      (<esri.SimpleMarkerSymbol> this.selectedGraphic.symbol).color = new Color(value);
       this.mapView.goTo({
         target: this.mapView.center ,
       });      
     } 
 
-    if (this.deleteGraphic && this.deleteGraphic.symbol.declaredClass == "esri.symbols.SimpleLineSymbol") {
-      (<esri.SimpleLineSymbol> this.deleteGraphic.symbol).color = new Color(value);
+    if (this.selectedGraphic && this.selectedGraphic.symbol.declaredClass == "esri.symbols.SimpleLineSymbol") {
+      (<esri.SimpleLineSymbol> this.selectedGraphic.symbol).color = new Color(value);
       this.mapView.goTo({
         target: this.mapView.center ,
       });      
     } 
 
-    if (this.deleteGraphic && this.deleteGraphic.symbol.declaredClass == "esri.symbols.SimpleFillSymbol") {
-      (<esri.SimpleFillSymbol> this.deleteGraphic.symbol).color = new Color(value);
+    if (this.selectedGraphic && this.selectedGraphic.symbol.declaredClass == "esri.symbols.SimpleFillSymbol") {
+      (<esri.SimpleFillSymbol> this.selectedGraphic.symbol).color = new Color(value);
       this.mapView.goTo({
         target: this.mapView.center ,
       });
-      (<esri.SimpleFillSymbol> this.deleteGraphic.symbol).color.a = 0.7;
+      (<esri.SimpleFillSymbol> this.selectedGraphic.symbol).color.a = 0.7;
     } 
   }
 
@@ -522,10 +526,10 @@ export class SelectAreaComponent implements OnInit {
   changeTitle() {
     let inputEl = <HTMLInputElement> document.getElementById("changeTitle");
     let newtitle = inputEl.value;   
-    if (!this.deleteGraphic) {
+    if (!this.selectedGraphic) {
       alert("Choose a graphic first!");
     } else {
-      this.deleteGraphic.attributes.title = newtitle;   
+      this.selectedGraphic.attributes.title = newtitle;   
       inputEl.value = "";
       this.showSuccessTitle();
     }
@@ -543,10 +547,10 @@ export class SelectAreaComponent implements OnInit {
   changeComments() {
     let inputEl = <HTMLInputElement> document.getElementById("changeComments");
     let newcomments = inputEl.value;
-    if (!this.deleteGraphic) {
+    if (!this.selectedGraphic) {
       alert("Choose a graphic first!");
     } else {
-      this.deleteGraphic.attributes.comments = newcomments;  
+      this.selectedGraphic.attributes.comments = newcomments;  
       inputEl.value = "";
       this.showSuccessComments();
     }
@@ -572,14 +576,14 @@ export class SelectAreaComponent implements OnInit {
         
         var results = response.results;
         if (results.length && results[results.length - 1].graphic) {  
-          self.deleteGraphic = results[results.length - 1].graphic;   
+          self.selectedGraphic = results[results.length - 1].graphic;   
         } else {
-          self.deleteGraphic = null;
+          self.selectedGraphic = null;
         }
       }).then( 
         () => {          
-          if (self.deleteGraphic != null) {           
-            self.sketchViewModel.update(self.deleteGraphic);
+          if (self.selectedGraphic != null) {           
+            self.sketchViewModel.update(self.selectedGraphic);
           }          
         }
       );
