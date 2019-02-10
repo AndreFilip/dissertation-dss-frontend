@@ -23,6 +23,9 @@ export class SelectAreaComponent implements OnInit {
 
   private selectedGraphic: esri.Graphic;
 
+  private latitude;
+  private longitude;
+
   @ViewChild('mapViewNode') private mapViewEl: ElementRef;
   @ViewChild('streetsLayer') private streetsLayerEl: ElementRef;
   @ViewChild('fire') private fireEl: ElementRef;
@@ -37,6 +40,7 @@ export class SelectAreaComponent implements OnInit {
   }
 
   async initializeMap() {
+    let component = this;
     try {
       const [EsriMap, EsriMapView, TileLayer, on, BasemapToggle,SketchViewModel,GraphicsLayer,Graphic, SpatialReference, Extent, KMLLayer] = await loadModules([
         'esri/Map',
@@ -61,20 +65,19 @@ export class SelectAreaComponent implements OnInit {
       this.tempGraphicsLayer = new GraphicsLayer();  
 
       var kmllayer = new KMLLayer({              
-        url: this.herokuhost + "/downloadFile/KML_Samples.kml"
+        url: component.herokuhost + "/downloadFile/KML_Samples.kml"
         // url: this.host + "/downloadFile/lines.kml"
       });
-
 
       //set up map    
       var map: esri.Map = new EsriMap({
         basemap: 'topo',
-        layers: [transportationLayer, this.tempGraphicsLayer, kmllayer]
+        layers: [transportationLayer, component.tempGraphicsLayer, kmllayer]
       });     
 
       //set up mapview  
       var mapView: esri.MapView = new EsriMapView({
-        container: this.mapViewEl.nativeElement,
+        container: component.mapViewEl.nativeElement,
         center: [23.8, 38.2],
         zoom: 7,
         map: map        
@@ -88,17 +91,17 @@ export class SelectAreaComponent implements OnInit {
       mapView.ui.add(basemapToggle, "bottom-right");
      
       //layer EVENTS
-      on(this.streetsLayerEl.nativeElement, "change", function(){
+      on(component.streetsLayerEl.nativeElement, "change", function(){
         transportationLayer.visible = this.checked;
       });    
       
       // when MapView gets ready
       mapView.when(() => {  
-        this.mapView = mapView;    
+        component.mapView = mapView;    
 
-        this.sketchViewModel = new SketchViewModel({
-          view:  this.mapView,
-          layer: this.tempGraphicsLayer,
+        component.sketchViewModel = new SketchViewModel({
+          view:  component.mapView,
+          layer: component.tempGraphicsLayer,
           pointSymbol: {
             type: "simple-marker", // autocasts as new SimpleMarkerSymbol()
             style: "square",
@@ -122,41 +125,40 @@ export class SelectAreaComponent implements OnInit {
             style: "solid"            
           }
         });
-        this.sketchViewModel.on("create-complete", addGraphic);
-        this.sketchViewModel.on("update-complete", updateGraphic);
-        this.sketchViewModel.on("update-cancel", updateGraphic);
-
-        let sketchViewModelInside = this.sketchViewModel;
-        let tempGraphicsLayerInside = this.tempGraphicsLayer;
-        let thisS = this;
-
-        function addGraphic(event) { 
-          let graphic = new Graphic({
-            geometry: event.geometry,
-            symbol: sketchViewModelInside.graphic.symbol,
-            attributes: {
-              title: "title",
-              comments: "comments",
-              idReturned: undefined
-            },
-            popupTemplate: {
-            title: "<p class='font-weight-bold'>{title}</p><hr>",
-            content: `{comments} <br> <hr>`  
-            }     
-          });                
-          tempGraphicsLayerInside.add(graphic);
-        }    
-
-        function updateGraphic(event) {           
-            event.graphic.geometry = event.geometry;
-            thisS.tempGraphicsLayer.add(event.graphic);
-            thisS.tempGraphicsLayer.graphics.remove(thisS.selectedGraphic);
-            this.mapView.goTo({
-              target: this.mapView.center ,
-            });
-            thisS.selectedGraphic = event.graphic;
+        component.sketchViewModel.on("create-complete", async (event) => {
+          try{
+            let [Graphic] = await loadModules([
+              'esri/Graphic'      
+            ]);  
+            let component = this;
+       
+            let graphic = new Graphic({
+              geometry: event.geometry,
+              symbol:  component.sketchViewModel.graphic.symbol,
+              attributes: {
+                title: "title",
+                comments: "comments",
+                idReturned: undefined
+              },
+              popupTemplate: {
+              title: "<p class='font-weight-bold'>{title}</p><hr>",
+              content: `{comments} <br> <hr>`  
+              }     
+            });                
+            component.tempGraphicsLayer.add(graphic);
+          } catch (er){
+            console.log(er);
+            
+          }
+          
         }
-        this.setUpClickHandler();
+          );
+          component.sketchViewModel.on("update-complete", component.updateGraphic);
+          component.sketchViewModel.on("update-cancel", component.updateGraphic);
+  
+          component.setUpClickHandler();
+                
+        
       }); 
 
     } catch (error) {
@@ -166,9 +168,7 @@ export class SelectAreaComponent implements OnInit {
   } //initializeMap() end  
 
   //draw a point/polyline/polygon/delete a graphic from view
-  drawGrahic(event) {   
-    console.log(event);
-    
+  drawGrahic(event) {       
     let buttonId = event.srcElement.id;
     
     switch (buttonId) { 
@@ -212,20 +212,15 @@ export class SelectAreaComponent implements OnInit {
                 });
                 
               } , 
-              error => {
-          
-                console.log("Error deleting 1 graphic ! ! !");
-          
-                console.log(error);                  
+              error => {          
+                console.log("Error in drawGrahic: ", error);          
           
               });
             }
           }
-
         }
         break;
       }
-
       default: { 
          break; 
       } 
@@ -234,7 +229,8 @@ export class SelectAreaComponent implements OnInit {
   } //end drawGrahic()    
 
 
-  async drawGraphicAfterLoading(graphicFromServer) {    
+  async drawGraphicAfterLoading(graphicFromServer) { 
+    let component = this;   
 
     let [Graphic] = await loadModules([
       'esri/Graphic'
@@ -274,14 +270,14 @@ export class SelectAreaComponent implements OnInit {
       }
       
     }); 
-    this.tempGraphicsLayer.graphics.add(point); 
+    component.tempGraphicsLayer.graphics.add(point); 
     }  
 
     if (graphicFromServer.type == "polyline") { 
     let r = graphicFromServer.color.r;
     let g = graphicFromServer.color.g;
     let b = graphicFromServer.color.b;
-    let paths = this.makeArrayFromString(graphicFromServer.paths);
+    let paths = component.makeArrayFromString(graphicFromServer.paths);
     
     let polyline = new Graphic({          
       geometry: {
@@ -313,7 +309,7 @@ export class SelectAreaComponent implements OnInit {
       }
       
     }); 
-    this.tempGraphicsLayer.graphics.add(polyline); 
+    component.tempGraphicsLayer.graphics.add(polyline); 
     }        
 
     if (graphicFromServer.type == "polygon") {      
@@ -351,74 +347,71 @@ export class SelectAreaComponent implements OnInit {
         }
         
       }); 
-      this.tempGraphicsLayer.graphics.add(polygon); 
+      component.tempGraphicsLayer.graphics.add(polygon); 
       }
-
 
   } //end drawGrahicAfterLoading() 
 
    async changeColor(value) {  
+    let component = this;
     var [Color] = await loadModules([
       'esri/Color'      
     ]);      
     
-    if (this.selectedGraphic && this.selectedGraphic.symbol.declaredClass == "esri.symbols.SimpleMarkerSymbol") {
-      (<esri.SimpleMarkerSymbol> this.selectedGraphic.symbol).color = new Color(value);
-      this.mapView.goTo({
-        target: this.mapView.center ,
+    if (component.selectedGraphic && component.selectedGraphic.symbol.declaredClass == "esri.symbols.SimpleMarkerSymbol") {
+      (<esri.SimpleMarkerSymbol> component.selectedGraphic.symbol).color = new Color(value);
+      component.mapView.goTo({
+        target: component.mapView.center ,
       });      
     } 
 
-    if (this.selectedGraphic && this.selectedGraphic.symbol.declaredClass == "esri.symbols.SimpleLineSymbol") {
-      (<esri.SimpleLineSymbol> this.selectedGraphic.symbol).color = new Color(value);
-      this.mapView.goTo({
-        target: this.mapView.center ,
+    if (component.selectedGraphic && component.selectedGraphic.symbol.declaredClass == "esri.symbols.SimpleLineSymbol") {
+      (<esri.SimpleLineSymbol> component.selectedGraphic.symbol).color = new Color(value);
+      component.mapView.goTo({
+        target: component.mapView.center ,
       });      
     } 
 
-    if (this.selectedGraphic && this.selectedGraphic.symbol.declaredClass == "esri.symbols.SimpleFillSymbol") {
-      (<esri.SimpleFillSymbol> this.selectedGraphic.symbol).color = new Color(value);
-      this.mapView.goTo({
-        target: this.mapView.center ,
+    if (component.selectedGraphic && component.selectedGraphic.symbol.declaredClass == "esri.symbols.SimpleFillSymbol") {
+      (<esri.SimpleFillSymbol> component.selectedGraphic.symbol).color = new Color(value);
+      component.mapView.goTo({
+        target: component.mapView.center ,
       });
-      (<esri.SimpleFillSymbol> this.selectedGraphic.symbol).color.a = 0.7;
+      (<esri.SimpleFillSymbol> component.selectedGraphic.symbol).color.a = 0.7;
     } 
   }
 
   loadGraphics() {
-    this.pointserviceService.getGraphics().subscribe(results => {
+    let component = this;
 
+    component.pointserviceService.getGraphics().subscribe(
+      results => {
       // let graphicsNow = thisS.tempGraphicsLayer.graphics;
       // graphicsNow.forEach(element => {
       //   if (element.attributes.id == null) {
       //     graphicsNow.remove(element);
       //   }
       // });
-
-      console.log("Getted?");
-
-      console.log(results);
-
+      
       if (results.length > 0) {
         for (let graphic of results) {
-          this.drawGraphicAfterLoading(graphic);
+          component.drawGraphicAfterLoading(graphic);
         }        
       }
-      this.mapView.goTo({
-        target: this.mapView.center ,
+      component.mapView.goTo({
+        target: component.mapView.center ,
       });
-    } , 
+    }, 
     error => {
-
-      console.log("Error Getting ! ! !");
-
-      console.log(error);                  
+      console.log("Error in loadGraphics: ", error);
 
     });
   } 
 
   saveGraphics() {
-    let graphicsCollection = this.tempGraphicsLayer.graphics;
+    let component = this;
+
+    let graphicsCollection = component.tempGraphicsLayer.graphics;
 
     if (graphicsCollection.length > 0) {
       let graphicsToSave: Array<Point> = [];
@@ -466,51 +459,36 @@ export class SelectAreaComponent implements OnInit {
           let color = new Color( (<esri.SimpleFillSymbol> graphic.symbol).color.r,(<esri.SimpleFillSymbol> graphic.symbol).color.b,(<esri.SimpleFillSymbol> graphic.symbol).color.g );          
           let graphicPolygon = new Point(title, comments, latitude , longitude , color, paths, type, idReturned);
           graphicsToSave.push(graphicPolygon);
-        }       
-
-      }   
-    
-      
-      this.pointserviceService.saveGraphics(graphicsToSave).subscribe(results => {
-        console.log("Saved?");
-        
-        console.log(results);        
-      
+        }
+      }     
+      component.pointserviceService.saveGraphics(graphicsToSave).subscribe(
+        results => { 
         graphicsCollection.removeMany(graphicsToDelete);
-        this.loadGraphics();
-        
-      } , 
-      error => {
-        console.log("Error Saving ! ! !");
-
-        console.log(error);                  
-
-      });
-    }
-    
+        this.loadGraphics();        
+        }, 
+        error => {
+        console.log("Error saveGraphics: ", error);
+        }
+        );
+    }    
   }
 
   deleteGraphics() {
-    this.pointserviceService.deleteGraphics().subscribe(results => {
-      console.log("Deleted?");
-      
-      console.log(results);
-      
-    } , 
+    let component = this;
+    component.pointserviceService.deleteGraphics().subscribe(
+      results => {      
+      console.log("Sucessful deleteGraphics()");
+    }, 
     error => {
-      console.log("Error Deleting ! ! !");
-
-      console.log(error);                  
-
-    });;
+      console.log("Error in deleteGraphics(): ", error);
+    }
+    );
   }  
 
   makeArrayFromString(arrayInString) {
     let returnedArray = [];
     let arrayWithCommas = arrayInString.split(",");
     let returnedArray2 = [];
-
-
     for (let i = 0; i < arrayWithCommas.length; i = i + 2) {
       let a = Number(arrayWithCommas [i]);
       let b = Number(arrayWithCommas [i + 1]);
@@ -524,14 +502,15 @@ export class SelectAreaComponent implements OnInit {
   }
 
   changeTitle() {
+    let component = this;
     let inputEl = <HTMLInputElement> document.getElementById("changeTitle");
     let newtitle = inputEl.value;   
-    if (!this.selectedGraphic) {
+    if (!component.selectedGraphic) {
       alert("Choose a graphic first!");
     } else {
-      this.selectedGraphic.attributes.title = newtitle;   
+      component.selectedGraphic.attributes.title = newtitle;   
       inputEl.value = "";
-      this.showSuccessTitle();
+      component.showSuccessTitle();
     }
   }
 
@@ -545,14 +524,15 @@ export class SelectAreaComponent implements OnInit {
   
 
   changeComments() {
+    let component = this;
     let inputEl = <HTMLInputElement> document.getElementById("changeComments");
     let newcomments = inputEl.value;
-    if (!this.selectedGraphic) {
+    if (!component.selectedGraphic) {
       alert("Choose a graphic first!");
     } else {
-      this.selectedGraphic.attributes.comments = newcomments;  
+      component.selectedGraphic.attributes.comments = newcomments;  
       inputEl.value = "";
-      this.showSuccessComments();
+      component.showSuccessComments();
     }
   }
 
@@ -567,23 +547,21 @@ export class SelectAreaComponent implements OnInit {
   }
 
   setUpClickHandler() {
-    let view =  this.mapView;
-    let self = this;
-
-    view.on("click", function(event) {
-      
-      view.hitTest(event).then(function(response) {
-        
-        var results = response.results;
+    let component = this;
+    component.mapView.on("click", function(event) {      
+      component.mapView.hitTest(event).then(function(response) {        
+        let results = response.results;
         if (results.length && results[results.length - 1].graphic) {  
-          self.selectedGraphic = results[results.length - 1].graphic;   
+          component.selectedGraphic = results[results.length - 1].graphic;   
         } else {
-          self.selectedGraphic = null;
+          component.selectedGraphic = null;
+          component.latitude = null;
+          component.longitude = null;
         }
       }).then( 
         () => {          
-          if (self.selectedGraphic != null) {           
-            self.sketchViewModel.update(self.selectedGraphic);
+          if (component.selectedGraphic != null) {           
+            component.sketchViewModel.update(component.selectedGraphic);
           }          
         }
       );
@@ -591,19 +569,61 @@ export class SelectAreaComponent implements OnInit {
   }  
 
   test() {
-    console.log(this.tempGraphicsLayer.graphics);
+    console.log(this.selectedGraphic);
   }
 
   test2() {  
   }
 
   onGet() {
-    this.fireEl.nativeElement.innerText = "?";
+    let component = this;
+    if (component.selectedGraphic) {
+      console.log(component.selectedGraphic);  
+      if (component.selectedGraphic.geometry.type == "point") {
+        component.latitude = (<esri.Point>component.selectedGraphic.geometry).latitude;
+        component.longitude = (<esri.Point>component.selectedGraphic.geometry).longitude;
+      } else if (component.selectedGraphic.geometry.type == "polygon") {
+        component.latitude = (<esri.Polygon>component.selectedGraphic.geometry).centroid.latitude;
+        component.longitude = (<esri.Polygon>component.selectedGraphic.geometry).centroid.longitude; 
+      }
 
+    }   
+  }
+
+
+    // async addGraphic(event) { 
+    //   var [Graphic] = await loadModules([
+    //     'esri/Graphic'      
+    //   ]);  
+    //   let component = this;
+ 
+    //   let graphic = new Graphic({
+    //     geometry: event.geometry,
+    //     symbol:  component.sketchViewModel.graphic.symbol,
+    //     attributes: {
+    //       title: "title",
+    //       comments: "comments",
+    //       idReturned: undefined
+    //     },
+    //     popupTemplate: {
+    //     title: "<p class='font-weight-bold'>{title}</p><hr>",
+    //     content: `{comments} <br> <hr>`  
+    //     }     
+    //   });                
+    //   component.tempGraphicsLayer.add(graphic);
+    // }    
+
+    updateGraphic(event) {           
+      let component = this;
+        
+        event.graphic.geometry = event.geometry;
+        component.tempGraphicsLayer.add(event.graphic);
+        component.tempGraphicsLayer.graphics.remove(component.selectedGraphic);
+        component.mapView.goTo({
+          target: component.mapView.center ,
+        });
+        component.selectedGraphic = event.graphic;
     }
-
-
-
 
 } //end SelectAreaComponent
 

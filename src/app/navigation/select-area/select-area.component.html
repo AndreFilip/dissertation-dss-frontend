@@ -1,19 +1,19 @@
 
 <div class="container-fluid">
-  <div class="row mt-2 text-right">
-    <div class="col-12">
-      <button (click)="test()" class="mx-1">Log MapView</button>
-      <button (click)="test2()" class="mx-1">Log Elses</button>
+  <div class="row">
+    <div class="col-10 offset-2">
+      <button (click)="test()" class="mx-1">test</button>
+      <button (click)="test2()" class="mx-1">test 2</button>
       <button (click)="saveGraphics()" class="mx-1">Save Graphics</button>
       <button (click)="loadGraphics()" class="mx-1">Load Graphics</button>
       <button (click)="deleteGraphics()" class="mx-1">Delete Graphics</button>
     </div>      
   </div>
   <div class="row mt-2">
-      <div class="col-12">
+      <div class="col-12 col-sm-4 col-md-2">
           <input type="checkbox" checked #streetsLayer/> Transportation
-      </div>      
-    </div>
+      </div>   
+  </div>
   <div class="row mt-3">
     <div class="col-lg-2">
       <!-- section navbar -->
@@ -27,18 +27,18 @@
       <!-- section Change comments and title -->
       <hr>
       <section>
-          <button class="btn btn-sm dropdown-toggle btn-primary row" type="button" data-toggle="collapse" data-target="#areaTexts" aria-expanded="false" aria-controls="areaTexts">Change comments and title</button>
+          <button class="btn btn-sm dropdown-toggle btn-secondary row" type="button" data-toggle="collapse" data-target="#areaTexts" aria-expanded="false" aria-controls="areaTexts">Alter comments/title</button>
           <fieldset id="areaTexts" class="collapse">
-              <label for="changeTitle" class="font-weight-bold row">Title</label>
+              <label for="changeTitle" class="font-weight-bold row">Title:</label>
               <div class="row justify-content-between">
                 <input  class="m-1 col-6" id="changeTitle"/>
-                <button class="m-1 col-4 btn btn-primary btn-sm" type="button" title="Change title" id="" (click)="changeTitle()">Save title</button>
+                <button class="m-1 col-4 btn btn-primary btn-sm" type="button" title="Change title" id="" (click)="changeTitle()">Save</button>
               </div>
               <hr>
-              <label for="changeComments" class="font-weight-bold row">Comments</label>   
+              <label for="changeComments" class="font-weight-bold row">Comments:</label>   
               <div class="row">
                 <textarea  class="m-1 col-12" id="changeComments" maxlength rows="6"></textarea>
-                <button class="m-1 btn btn-primary btn-sm" type="button" title="Change comments" id="" (click)="changeComments()">Save comments</button>             
+                <button class="m-1 btn btn-primary btn-sm" type="button" title="Change comments" id="" (click)="changeComments()">Save</button>             
               </div>
               <p class="hide" style="color:green" id="succesTitle">Title changed</p>
               <p class="hide" style="color:green" id="succesComments">Comments changed</p>
@@ -47,12 +47,12 @@
       <!-- section Select color-->
       <hr>
       <section>
-          <button class="btn btn-sm dropdown-toggle btn-primary row" type="button" data-toggle="collapse" data-target="#areaColor" aria-expanded="false" aria-controls="areaColor">Change color</button>
+          <button class="btn btn-sm dropdown-toggle btn-secondary row" type="button" data-toggle="collapse" data-target="#areaColor" aria-expanded="false" aria-controls="areaColor">Alter color</button>
           <div id="areaColor" class="collapse">
-              <label for="areaColor"  class="font-weight-bold row">Select color</label>         
+              <label for="areaColor"  class="font-weight-bold row">Select color:</label>         
               <div id="color" class="row justify-content-between m-2">
                   <input type="color" id="color" name="color" class="col-4 mt-2 mt-lg-0" #chooseColor2/>
-                  <button class="btn btn-primary btn-sm col-6 ml-2 mt-2 mt-lg-0" type="button" title="" id="" (click)="changeColor(chooseColor2.value)">Save color</button>              
+                  <button class="btn btn-primary btn-sm col-6 ml-2 mt-2 mt-lg-0" type="button" title="" id="" (click)="changeColor(chooseColor2.value)">Save</button>              
               </div>
           </div>          
       </section>    
@@ -66,19 +66,9 @@
         </section>
         <!-- section data from external apis-->
         <section class="col-lg-3">
-          <button class="btn btn-primary btn-sm" type="button" (click)="onGet()">Get Smth</button>
-          <p #fire></p>
-          <p>kind of selected region</p>    
-          <p>get current and future weather conditions + notifications</p>
-          <hr>
-          <p>get air quality measurements</p>
-          <p>get fire danger </p>
-          <p>acid rain occurrence</p>
-          <hr>
-          <p>get quality of soil </p>
-          <p>get water availability</p>
-          <p>be informed for any pest or diseases</p>        
-        </section>
+        <button class="btn btn-primary btn-sm" type="button" (click)="onGet()">Get Area Information</button>
+        <app-area-information [latitude]="latitude" [longitude]="longitude" *ngIf="latitude && longitude"></app-area-information>    
+        </section>      
       </div>
     </main>
   </div>
