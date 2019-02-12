@@ -21,4 +21,8 @@ export class AreaInformationService {
     return this.http.get(this.basicUrl + "?" + "lat=" + lat + "&lon=" + lon + this.myArcGisID);
     }
 
+  getConvertedPathTo4326(url: string){
+  return this.http.get(url);
+  }
+
 }

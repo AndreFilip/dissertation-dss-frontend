@@ -6,6 +6,9 @@ import { Color } from './../../color.model';
 import { Point } from './../../point.model';
 
 import { PointserviceService } from './../../pointservice.service';
+import { AreaInformationService } from './area-information/area-information.service';
+import { log } from 'util';
+
 
 // import * as $ from 'jquery';
 
@@ -31,7 +34,7 @@ export class SelectAreaComponent implements OnInit {
   @ViewChild('streetsLayer') private streetsLayerEl: ElementRef;
   @ViewChild('fire') private fireEl: ElementRef;
 
-  constructor(private pointserviceService: PointserviceService) { }
+  constructor(private pointserviceService: PointserviceService, private areaInformationService: AreaInformationService) { }
 
   private herokuhost:string = "https://sleepy-brook-85346.herokuapp.com";
   private localhost:string = "localhost:8080";
@@ -147,6 +150,10 @@ export class SelectAreaComponent implements OnInit {
               }     
             });  
             console.log(graphic.geometry);
+            if (graphic.geometry.type == 'polyline') {
+              component.getConvertedPathTo4326(graphic.geometry.paths);
+            }
+            
                           
             component.tempGraphicsLayer.add(graphic);
           } catch (er){
@@ -641,8 +648,33 @@ export class SelectAreaComponent implements OnInit {
     // https://developers.arcgis.com/rest/services-reference/project.htm
     // https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer/project?inSR=102100&outSR=4326&geometries=%7B%0D%0A++%22geometryType%22+%3A+%22esriGeometryPoint%22%2C%0D%0A++%22geometries%22+%3A+%5B%0D%0A+++++%7B%0D%0A+++++++%22x%22+%3A+-11696523.780400001%2C+%0D%0A+++++++%22y%22+%3A+4804891.0001000017%0D%0A+++++%7D%0D%0A++%5D%0D%0A%7D&f=json
     // https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer/project?f=json&inSR=102100&outSR=4326&geometries={'geometryType':'esriGeometryPolyline', 'geometries': [{ 'paths': [[[2675392.4704968194, 4860571.448709208], [ 2754886.979913382 , 4732157.241190145]]]}] }
+//     paths: Array(1)
+// 0: Array(4)
+// 0: (2) [2614854.344094951, 4791472.375139439]
+// 1: (2) [2638549.8228633543, 4734144.60392556]
+// 2: (2) [2731802.9973712647, 4825104.667584915]
+// 3: (2) [2731802.9973712647, 4825869.037867766]
+    // polylineLength
+    getConvertedPathTo4326(pathsArray){
+       let result = [];
+       var url = "https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer/project?f=json&inSR=102100&outSR=4326&geometries={'geometryType':'esriGeometryPolyline','geometries':[{'paths':[";
 
+       pathsArray.forEach(element => {
+          // console.log(element);    
+          url = url.concat(element + ",");
+      });
+      url = url.concat("]}]}");
 
+      
+      // this.areaInformationService.getConvertedPathTo4326(url).subscribe( (response) => {
+      //   console.log(response);        
+      // }, error => {
+      //   console.log(error);
+        
+      // })
+      console.log(url);    
+
+    }
 
 
 } //end SelectAreaComponent
