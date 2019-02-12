@@ -57,6 +57,19 @@
           </div>          
       </section>    
       <hr>     
+      <section>
+        <h3>both KML</h3>   
+        <p>insert a kml file</p>
+        <p>manipulate a KML file</p>
+        <p>save a kml file</p>
+        <p>delete a kml file</p>
+      </section>
+      <hr>     
+      <section>
+        <h3>both ALERTS</h3>        
+        <p>subscibe to alerts/notifications for an area</p>   
+      </section>
+      
     </div>
     <!-- map -->
     <main class="col-lg-10">
@@ -67,18 +80,26 @@
         <!-- section data from external apis-->
         <section class="col-lg-3">
         <button class="btn btn-primary btn-sm" type="button" (click)="onGet()">Get Area Information</button>
-        <app-area-information [latitude]="latitude" [longitude]="longitude" *ngIf="latitude && longitude"></app-area-information>    
+        <app-area-information [latitude]="latitude" [longitude]="longitude" *ngIf="(latitude && longitude) || polylineLength"></app-area-information>    
         </section> 
-        <p>kind of selected region</p>    
-        <p>get current and future weather conditions + notifications</p>
+        <section class="col-12">
+        <h3>all</h3>
+        <p>information:
+          i) point: coordinates
+          ii) polyline: length
+          iii) polygon: area space 
+        </p>    
+        <hr>  
+        <p>get current/future weather conditions </p>
         <hr>
-        <p>get air quality measurements</p>
+        <p>get air quality measurements/acid rain occurrence</p>
+        <h3>foresters</h3>
         <p>get fire danger </p>
-        <p>acid rain occurrence</p>
-        <hr>
+        <h3>farmers</h3>         
         <p>get quality of soil </p>
         <p>get water availability</p>
-        <p>be informed for any pest or diseases</p>          
+        <p>be informed for any pest or diseases</p>        
+        </section>              
       </div>
     </main>
   </div>

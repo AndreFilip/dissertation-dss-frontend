@@ -25,6 +25,7 @@ export class SelectAreaComponent implements OnInit {
 
   private latitude;
   private longitude;
+  private polylineLength;
 
   @ViewChild('mapViewNode') private mapViewEl: ElementRef;
   @ViewChild('streetsLayer') private streetsLayerEl: ElementRef;
@@ -80,8 +81,8 @@ export class SelectAreaComponent implements OnInit {
         container: component.mapViewEl.nativeElement,
         center: [23.8, 38.2],
         zoom: 7,
-        map: map        
-      });   
+        map: map       
+        });   
 
       //toggling basemaps
       var basemapToggle = new BasemapToggle({
@@ -144,7 +145,9 @@ export class SelectAreaComponent implements OnInit {
               title: "<p class='font-weight-bold'>{title}</p><hr>",
               content: `{comments} <br> <hr>`  
               }     
-            });                
+            });  
+            console.log(graphic.geometry);
+                          
             component.tempGraphicsLayer.add(graphic);
           } catch (er){
             console.log(er);
@@ -386,12 +389,12 @@ export class SelectAreaComponent implements OnInit {
 
     component.pointserviceService.getGraphics().subscribe(
       results => {
-      // let graphicsNow = thisS.tempGraphicsLayer.graphics;
-      // graphicsNow.forEach(element => {
-      //   if (element.attributes.id == null) {
-      //     graphicsNow.remove(element);
-      //   }
-      // });
+      let allGraphicsDesignedCurrently = component.tempGraphicsLayer.graphics;
+      allGraphicsDesignedCurrently.forEach(element => {
+        if (element.attributes.id == null) {
+          allGraphicsDesignedCurrently.remove(element);
+        }
+      });
       
       if (results.length > 0) {
         for (let graphic of results) {
@@ -581,37 +584,14 @@ export class SelectAreaComponent implements OnInit {
       console.log(component.selectedGraphic);  
       if (component.selectedGraphic.geometry.type == "point") {
         component.latitude = (<esri.Point>component.selectedGraphic.geometry).latitude;
-        component.longitude = (<esri.Point>component.selectedGraphic.geometry).longitude;
+        component.longitude = (<esri.Point>component.selectedGraphic.geometry).longitude;        
       } else if (component.selectedGraphic.geometry.type == "polygon") {
         component.latitude = (<esri.Polygon>component.selectedGraphic.geometry).centroid.latitude;
         component.longitude = (<esri.Polygon>component.selectedGraphic.geometry).centroid.longitude; 
       }
 
     }   
-  }
-
-
-    // async addGraphic(event) { 
-    //   var [Graphic] = await loadModules([
-    //     'esri/Graphic'      
-    //   ]);  
-    //   let component = this;
- 
-    //   let graphic = new Graphic({
-    //     geometry: event.geometry,
-    //     symbol:  component.sketchViewModel.graphic.symbol,
-    //     attributes: {
-    //       title: "title",
-    //       comments: "comments",
-    //       idReturned: undefined
-    //     },
-    //     popupTemplate: {
-    //     title: "<p class='font-weight-bold'>{title}</p><hr>",
-    //     content: `{comments} <br> <hr>`  
-    //     }     
-    //   });                
-    //   component.tempGraphicsLayer.add(graphic);
-    // }    
+  }  
 
     updateGraphic(event) {           
       let component = this;
@@ -624,6 +604,46 @@ export class SelectAreaComponent implements OnInit {
         });
         component.selectedGraphic = event.graphic;
     }
+
+    // 'K' is kilometers                                      
+    // 'N' is nautical miles
+    // GeoDataSource.com
+    distance(lat1, lon1, lat2, lon2, unit) {
+      if ((lat1 == lat2) && (lon1 == lon2)) {
+        return 0;
+      }
+      else {
+        lat1 = this.roundTo2Decimals(lat1);
+        lat2 = this.roundTo2Decimals(lat2);
+        lon1 = this.roundTo2Decimals(lon1);
+        lon2 = this.roundTo2Decimals(lon2);
+        var radlat1 = Math.PI * lat1/180;
+        var radlat2 = Math.PI * lat2/180;
+        var theta = lon1-lon2;
+        var radtheta = Math.PI * theta/180;
+        var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+        if (dist > 1) {
+          dist = 1;
+        }
+        dist = Math.acos(dist);
+        dist = dist * 180/Math.PI;
+        dist = dist * 60 * 1.1515;
+        if (unit=="K") { dist = dist * 1.609344 }
+        if (unit=="N") { dist = dist * 0.8684 }
+        return dist;
+      }
+    }
+
+    roundTo2Decimals (num) {
+     return Math.round(num * 100) / 100;
+    }
+
+    // https://developers.arcgis.com/rest/services-reference/project.htm
+    // https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer/project?inSR=102100&outSR=4326&geometries=%7B%0D%0A++%22geometryType%22+%3A+%22esriGeometryPoint%22%2C%0D%0A++%22geometries%22+%3A+%5B%0D%0A+++++%7B%0D%0A+++++++%22x%22+%3A+-11696523.780400001%2C+%0D%0A+++++++%22y%22+%3A+4804891.0001000017%0D%0A+++++%7D%0D%0A++%5D%0D%0A%7D&f=json
+    // https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer/project?f=json&inSR=102100&outSR=4326&geometries={'geometryType':'esriGeometryPolyline', 'geometries': [{ 'paths': [[[2675392.4704968194, 4860571.448709208], [ 2754886.979913382 , 4732157.241190145]]]}] }
+
+
+
 
 } //end SelectAreaComponent
 
