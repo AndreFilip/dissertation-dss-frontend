@@ -10,9 +10,7 @@ export class Point {
     color: Color ;
     paths: string ; 
     type: string ; 
-    idReturned: number ; 
-
-  
+    idReturned: number ;   
   
     constructor(title: string, comments: string, latitude: number , longitude: number , 
         color: Color, paths: string, type: string, idReturned: number) {
