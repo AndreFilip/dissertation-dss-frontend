@@ -12,6 +12,8 @@ import { AreaInformationComponent } from './navigation/select-area/area-informat
 
 import { PointserviceService } from './pointservice.service';
 import { AreaInformationService } from './navigation/select-area/area-information/area-information.service';
+import {JsonpModule, Jsonp, Response} from '@angular/http';
+import { PolylineInformationComponent } from './navigation/select-area/polyline-information/polyline-information.component';
 
 @NgModule({
   declarations: [
@@ -19,12 +21,14 @@ import { AreaInformationService } from './navigation/select-area/area-informatio
     NavigationComponent,
     WellcomePageComponent,
     SelectAreaComponent,
-    AreaInformationComponent
+    AreaInformationComponent,
+    PolylineInformationComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    JsonpModule
   ],
   providers: [
     PointserviceService,

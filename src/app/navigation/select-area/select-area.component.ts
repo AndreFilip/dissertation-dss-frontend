@@ -7,9 +7,6 @@ import { Point } from './../../point.model';
 
 import { PointserviceService } from './../../pointservice.service';
 import { AreaInformationService } from './area-information/area-information.service';
-import { log } from 'util';
-
-
 // import * as $ from 'jquery';
 
 @Component({
@@ -149,16 +146,13 @@ export class SelectAreaComponent implements OnInit {
               content: `{comments} <br> <hr>`  
               }     
             });  
-            console.log(graphic.geometry);
-            if (graphic.geometry.type == 'polyline') {
+            //console.log(graphic.geometry);
+            if (graphic.geometry.type == 'polyline') {              
               component.getConvertedPathTo4326(graphic.geometry.paths);
-            }
-            
-                          
+            }      
             component.tempGraphicsLayer.add(graphic);
           } catch (er){
-            console.log(er);
-            
+            console.log(er);            
           }
           
         }
@@ -561,8 +555,12 @@ export class SelectAreaComponent implements OnInit {
     component.mapView.on("click", function(event) {      
       component.mapView.hitTest(event).then(function(response) {        
         let results = response.results;
-        if (results.length && results[results.length - 1].graphic) {  
-          component.selectedGraphic = results[results.length - 1].graphic;   
+        if (results.length && results[results.length - 1].graphic) {
+          if(results[results.length - 1].graphic.geometry.type == "polyline") {
+
+          } else {
+            component.selectedGraphic = results[results.length - 1].graphic;
+          }
         } else {
           component.selectedGraphic = null;
           component.latitude = null;
@@ -620,10 +618,10 @@ export class SelectAreaComponent implements OnInit {
         return 0;
       }
       else {
-        lat1 = this.roundTo2Decimals(lat1);
-        lat2 = this.roundTo2Decimals(lat2);
-        lon1 = this.roundTo2Decimals(lon1);
-        lon2 = this.roundTo2Decimals(lon2);
+        lat1 = this.roundTo6Decimals(lat1);
+        lat2 = this.roundTo6Decimals(lat2);
+        lon1 = this.roundTo6Decimals(lon1);
+        lon2 = this.roundTo6Decimals(lon2);
         var radlat1 = Math.PI * lat1/180;
         var radlat2 = Math.PI * lat2/180;
         var theta = lon1-lon2;
@@ -641,39 +639,36 @@ export class SelectAreaComponent implements OnInit {
       }
     }
 
-    roundTo2Decimals (num) {
-     return Math.round(num * 100) / 100;
+    roundTo6Decimals (num) {
+     return Math.round(num * 1000000) / 1000000;
     }
 
-    // https://developers.arcgis.com/rest/services-reference/project.htm
-    // https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer/project?inSR=102100&outSR=4326&geometries=%7B%0D%0A++%22geometryType%22+%3A+%22esriGeometryPoint%22%2C%0D%0A++%22geometries%22+%3A+%5B%0D%0A+++++%7B%0D%0A+++++++%22x%22+%3A+-11696523.780400001%2C+%0D%0A+++++++%22y%22+%3A+4804891.0001000017%0D%0A+++++%7D%0D%0A++%5D%0D%0A%7D&f=json
-    // https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer/project?f=json&inSR=102100&outSR=4326&geometries={'geometryType':'esriGeometryPolyline', 'geometries': [{ 'paths': [[[2675392.4704968194, 4860571.448709208], [ 2754886.979913382 , 4732157.241190145]]]}] }
-//     paths: Array(1)
-// 0: Array(4)
-// 0: (2) [2614854.344094951, 4791472.375139439]
-// 1: (2) [2638549.8228633543, 4734144.60392556]
-// 2: (2) [2731802.9973712647, 4825104.667584915]
-// 3: (2) [2731802.9973712647, 4825869.037867766]
     // polylineLength
+    // https://developers.arcgis.com/rest/services-reference/project.htm
+    // Example: https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer/project?f=json&inSR=102100&outSR=4326&geometries={'geometryType':'esriGeometryPolyline','geometries':[{'paths':[[[2657353.3318215227,4829996.637395144], [2647353.3318215227,4829296.637395144]]]}]}
     getConvertedPathTo4326(pathsArray){
-       let result = [];
-       var url = "https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer/project?f=json&inSR=102100&outSR=4326&geometries={'geometryType':'esriGeometryPolyline','geometries':[{'paths':[";
-
-       pathsArray.forEach(element => {
-          // console.log(element);    
-          url = url.concat(element + ",");
+      let component = this;
+      var url = "https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer/project?inSR=102100&outSR=4326&geometries={'geometryType':'esriGeometryPolyline','geometries':[{'paths':[[";
+      let result2 = [];
+      pathsArray[0].forEach(element => {
+          result2.push(element);
       });
-      url = url.concat("]}]}");
-
-      
-      // this.areaInformationService.getConvertedPathTo4326(url).subscribe( (response) => {
-      //   console.log(response);        
-      // }, error => {
-      //   console.log(error);
-        
-      // })
-      console.log(url);    
-
+      let result = pathsArray[0].join("],[");
+      result = url + "[" + result + "]]]}]}&f=json";     
+      this.areaInformationService.getConvertedPathTo4326(result).subscribe( (response) => {  
+        let paths = (<any>response)._body.geometries[0].paths[0];
+        if (paths.length > 1) {
+          let polylineLength2 = 0;
+          for (let j=1; j<paths.length; j++) {
+            // paths return [longitute, latitute]
+            polylineLength2 += component.distance(paths[j-1][1], paths[j-1][0], paths[j][1], paths[j][0], "K");
+            }
+            component.polylineLength = polylineLength2;
+            
+        }
+      }, error => {
+        console.log(error);        
+      })
     }
 
 

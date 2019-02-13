@@ -79,8 +79,9 @@
         </section>
         <!-- section data from external apis-->
         <section class="col-lg-3">
-        <button class="btn btn-primary btn-sm" type="button" (click)="onGet()">Get Area Information</button>
-        <app-area-information [latitude]="latitude" [longitude]="longitude" *ngIf="(latitude && longitude) || polylineLength"></app-area-information>    
+        <button class="btn btn-primary btn-sm" type="button" (click)="onGet()">Get Area Information</button>        
+        <app-area-information [latitude]="latitude" [longitude]="longitude" *ngIf="latitude && longitude"></app-area-information>    
+        <app-polyline-information *ngIf="polylineLength" [polylineLength]="polylineLength"></app-polyline-information>
         </section> 
         <section class="col-12">
         <h3>all</h3>
