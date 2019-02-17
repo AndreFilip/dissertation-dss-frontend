@@ -1,22 +1,19 @@
-    <h3>all</h3>
-    <p>information:      
-      <span>i) point: coordinates</span>
-      <span>ii) polyline: length</span>
-      <span>iii) polygon: area space</span>
-    </p>    
-    <hr>  
-    <p>get current/future weather conditions </p>
-    <hr>
-    <p>get air quality measurements/acid rain occurrence</p>
-    <h3>foresters</h3>
-    <p>get fire danger </p>
-    <h3>farmers</h3>         
-    <p>get quality of soil </p>
-    <p>get water availability</p>
-    <p>be informed for any pest or diseases</p>        
+<h3>all</h3>
+<p [innerHTML]="type=='point' ? 'Your point coordinates:' : 'Your polygon\'s centroid coordinates:'"></p>
+<p>coordinates</p>
+<hr>
+<p>get current/future weather conditions </p>
+<hr>
+<p>get air quality measurements/acid rain occurrence</p>
+<h3>foresters</h3>
+<p>get fire danger </p>
+<h3>farmers</h3>
+<p>get quality of soil </p>
+<p>get water availability</p>
+<p>be informed for any pest or diseases</p>
 
 
-  <!-- Openweathermap
+<!-- Openweathermap
 andrfilippp@hotmail.com / agent100agent
 fdf3690158d951e8c0031cb22966f666 -->
 
@@ -138,20 +135,20 @@ list.dt_txt Data/time of calculation, UTC -->
   date_iso  string - date and time corresponding to returned date date  
   integer - ISO 8601 timestamp value  float - ultraviolet index  https://en.wikipedia.org/wiki/Ultraviolet_index -->
 
-  <!-- Carbon Monoxide Data -->
-  <!-- http://api.openweathermap.org/pollution/v1/co/{location}/{datetime}.json?appid={api_key} -->
-  <!-- location Location coordinates 
+<!-- Carbon Monoxide Data -->
+<!-- http://api.openweathermap.org/pollution/v1/co/{location}/{datetime}.json?appid={api_key} -->
+<!-- location Location coordinates 
     datetime ISO 8601 date or alias 
     api_key Your API key -->
 
-    <!-- Digits beyond decimal point to search radius
+<!-- Digits beyond decimal point to search radius
 No decimal part ~78 km 1 digit 7862 m 2 digits 786 m 3 digits 78 m 4 digits 8 m 5 digits 1 m
 Examples: -->
 <!-- http://api.openweathermap.org/pollution/v1/co/0.0,10.0/2016-03-01Z.json?appid={your-api-key} 1 digit (~7862m) 
   http://api.openweathermap.org/pollution/v1/co/0.000,10.000/2016-03-01Z.json?appid={your-api-key} 3 digits (78m) -->
-  <!-- Date format -->
-  <!-- ISO 8601 -->
-  <!-- Date values -->
+<!-- Date format -->
+<!-- ISO 8601 -->
+<!-- Date values -->
 <!-- 2016-01-02T15:04:05Z searches between 2016-01-02T15:04:05Z and 2016-01-02T15:04:05.9999Z 2016-01-02T15:04Z searches between 2016-01-02T15:04:00Z and 2016-01-02T15:04:59.9999Z 2016-01-02T15Z searches between 2016-01-02T15:00:00Z and 2016-01-02T15:59:59.9999Z 2016-01-02Z searches between 2016-01-02T00:00:00Z and 2016-01-02T23:59:59.9999Z 2016-01Z searches between 2016-01-01T00:00:00Z and 2016-12-31T23:59:59.9999Z 2016Z searches between 2016-01-01T00:00:00Z and 2016-12-31T23:59:99.9999Z -->
 <!-- Available aliases
 current  Searches for the latest available data point up until now

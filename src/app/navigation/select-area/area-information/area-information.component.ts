@@ -1,6 +1,12 @@
-import { Component, OnInit, Input } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input
+} from '@angular/core';
 
-import { AreaInformationService } from './area-information.service';
+import {
+  AreaInformationService
+} from './area-information.service';
 
 @Component({
   selector: 'app-area-information',
@@ -10,17 +16,19 @@ import { AreaInformationService } from './area-information.service';
 export class AreaInformationComponent implements OnInit {
   @Input() latitude: string;
   @Input() longitude: string;
+  @Input() selectedGraphic: string;
+  @Input() type: string;
 
-  constructor(private areaInformationService: AreaInformationService) { }
+  constructor(private areaInformationService: AreaInformationService) {}
 
   ngOnInit() {
-    this.initializeWeatherData();
+    // this.initializeWeatherData();
   }
 
   initializeWeatherData() {
-    this.areaInformationService.getWeatherData(this.latitude, this.longitude).subscribe((data) => 
-      console.log(data)      
-    );   
+    this.areaInformationService.getWeatherData(this.latitude, this.longitude).subscribe((data) => {
+      // console.log(data);
+    });
   }
 
 }

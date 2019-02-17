@@ -1,4 +1,3 @@
-
 <div class="container-fluid">
   <div class="row">
     <div class="col-10 offset-2">
@@ -7,103 +6,111 @@
       <button (click)="saveGraphics()" class="mx-1">Save Graphics</button>
       <button (click)="loadGraphics()" class="mx-1">Load Graphics</button>
       <button (click)="deleteGraphics()" class="mx-1">Delete Graphics</button>
-    </div>      
+    </div>
   </div>
   <div class="row mt-2">
-      <div class="col-12 col-sm-4 col-md-2">
-          <input type="checkbox" checked #streetsLayer/> Transportation
-      </div>   
+    <div class="col-12 col-sm-4 col-md-2">
+      <input type="checkbox" checked #streetsLayer /> Transportation
+    </div>
   </div>
   <div class="row mt-3">
     <div class="col-lg-2">
       <!-- section navbar -->
       <label for="esri-icons-navbar" class="font-weight-bold row">Select an icon</label>
       <section class="text-left row" id="esri-icons-navbar">
-          <button class="action-button esri-icon-blank-map-pin mr-2" type="button" title="Draw a point" id="pointButton" #pointButton (click)="drawGrahic($event)"></button>
-          <button class="action-button esri-icon-polyline mr-2" type="button" title="Draw a polyline" id="polylineButton" #polylineButton (click)="drawGrahic($event)"></button>
-          <button class="action-button esri-icon-polygon mr-2" type="button" title="Draw a polygon" id="polygonButton" #polygonButton (click)="drawGrahic($event)"></button>            
-          <button class="action-button esri-icon-trash mr-2"  type="button" title="Select a graphic and clear it by pressing this button" id="resetButton" #resetButton (click)="drawGrahic($event)"></button>   
+        <button class="action-button esri-icon-blank-map-pin mr-2" type="button" title="Draw a point" id="pointButton"
+          #pointButton (click)="drawGrahic($event)"></button>
+        <button class="action-button esri-icon-polyline mr-2" type="button" title="Draw a polyline" id="polylineButton"
+          #polylineButton (click)="drawGrahic($event)"></button>
+        <button class="action-button esri-icon-polygon mr-2" type="button" title="Draw a polygon" id="polygonButton"
+          #polygonButton (click)="drawGrahic($event)"></button>
+        <button class="action-button esri-icon-edit mr-2" type="button" title="Select a graphic and edit it" id="editButton"
+          #resetButton (click)="drawGrahic($event)"></button>
+        <button class="action-button esri-icon-trash" type="button" title="Select a graphic and clear it" id="resetButton"
+          #resetButton (click)="drawGrahic($event)"></button>
+
       </section>
       <!-- section Change comments and title -->
       <hr>
       <section>
-          <button class="btn btn-sm dropdown-toggle btn-secondary row" type="button" data-toggle="collapse" data-target="#areaTexts" aria-expanded="false" aria-controls="areaTexts">Alter comments/title</button>
-          <fieldset id="areaTexts" class="collapse">
-              <label for="changeTitle" class="font-weight-bold row">Title:</label>
-              <div class="row justify-content-between">
-                <input  class="m-1 col-6" id="changeTitle"/>
-                <button class="m-1 col-4 btn btn-primary btn-sm" type="button" title="Change title" id="" (click)="changeTitle()">Save</button>
-              </div>
-              <hr>
-              <label for="changeComments" class="font-weight-bold row">Comments:</label>   
-              <div class="row">
-                <textarea  class="m-1 col-12" id="changeComments" maxlength rows="6"></textarea>
-                <button class="m-1 btn btn-primary btn-sm" type="button" title="Change comments" id="" (click)="changeComments()">Save</button>             
-              </div>
-              <p class="hide" style="color:green" id="succesTitle">Title changed</p>
-              <p class="hide" style="color:green" id="succesComments">Comments changed</p>
-          </fieldset>
+        <button class="btn btn-sm dropdown-toggle btn-secondary row" type="button" data-toggle="collapse" data-target="#areaTexts"
+          aria-expanded="false" aria-controls="areaTexts">Alter comments/title</button>
+        <fieldset id="areaTexts" class="collapse">
+          <label for="changeTitle" class="font-weight-bold row">Title:</label>
+          <div class="row justify-content-between">
+            <input class="m-1 col-6" id="changeTitle" />
+            <button class="m-1 col-4 btn btn-primary btn-sm" type="button" title="Change title" id="" (click)="changeTitle()">Save</button>
+          </div>
+          <hr>
+          <label for="changeComments" class="font-weight-bold row">Comments:</label>
+          <div class="row">
+            <textarea class="m-1 col-12" id="changeComments" maxlength rows="6"></textarea>
+            <button class="m-1 btn btn-primary btn-sm" type="button" title="Change comments" id="" (click)="changeComments()">Save</button>
+          </div>
+          <p class="hide" style="color:green" id="succesTitle">Title changed</p>
+          <p class="hide" style="color:green" id="succesComments">Comments changed</p>
+        </fieldset>
       </section>
       <!-- section Select color-->
       <hr>
       <section>
-          <button class="btn btn-sm dropdown-toggle btn-secondary row" type="button" data-toggle="collapse" data-target="#areaColor" aria-expanded="false" aria-controls="areaColor">Alter color</button>
-          <div id="areaColor" class="collapse">
-              <label for="areaColor"  class="font-weight-bold row">Select color:</label>         
-              <div id="color" class="row justify-content-between m-2">
-                  <input type="color" id="color" name="color" class="col-4 mt-2 mt-lg-0" #chooseColor2/>
-                  <button class="btn btn-primary btn-sm col-6 ml-2 mt-2 mt-lg-0" type="button" title="" id="" (click)="changeColor(chooseColor2.value)">Save</button>              
-              </div>
-          </div>          
-      </section>    
-      <hr>     
+        <button class="btn btn-sm dropdown-toggle btn-secondary row" type="button" data-toggle="collapse" data-target="#areaColor"
+          aria-expanded="false" aria-controls="areaColor">Alter color</button>
+        <div id="areaColor" class="collapse">
+          <label for="areaColor" class="font-weight-bold row">Select color:</label>
+          <div id="color" class="row justify-content-between m-2">
+            <input type="color" id="color" name="color" class="col-4 mt-2 mt-lg-0" #chooseColor2 />
+            <button class="btn btn-primary btn-sm col-6 ml-2 mt-2 mt-lg-0" type="button" title="" id="" (click)="changeColor(chooseColor2.value)">Save</button>
+          </div>
+        </div>
+      </section>
+      <hr>
       <section>
-        <h3>both KML</h3>   
+        <h3>both KML</h3>
         <p>insert a kml file</p>
         <p>manipulate a KML file</p>
         <p>save a kml file</p>
         <p>delete a kml file</p>
       </section>
-      <hr>     
+      <hr>
       <section>
-        <h3>both ALERTS</h3>        
-        <p>subscibe to alerts/notifications for an area</p>   
+        <h3>both ALERTS</h3>
+        <p>subscibe to alerts/notifications for an area</p>
       </section>
-      
+
     </div>
     <!-- map -->
     <main class="col-lg-10">
       <div class="row">
         <section class="col-lg-9 my-3 my-lg-0">
-            <div id="mapViewNode" #mapViewNode></div>
+          <div id="mapViewNode" #mapViewNode></div>
         </section>
         <!-- section data from external apis-->
         <section class="col-lg-3">
-        <button class="btn btn-primary btn-sm" type="button" (click)="onGet()">Get Area Information</button>        
-        <app-area-information [latitude]="latitude" [longitude]="longitude" *ngIf="latitude && longitude"></app-area-information>    
-        <app-polyline-information *ngIf="polylineLength" [polylineLength]="polylineLength"></app-polyline-information>
-        </section> 
+          <!-- <button class="btn btn-primary btn-sm" type="button" (click)="onGet()">Get Area Information</button>         -->
+          <app-polyline-information [polylineLength]="polylineLength" *ngIf="polylineLength"></app-polyline-information>
+          <app-polygon-information [area]="area" [areaIndex]="areaIndex" *ngIf="area"></app-polygon-information>
+          <app-area-information [latitude]="latitude" [longitude]="longitude" [selectedGraphic]="selectedGraphic"
+            [type]="type" *ngIf="type && latitude && longitude && selectedGraphic"></app-area-information>
+        </section>
         <section class="col-12">
-        <h3>all</h3>
-        <p>information:
-          i) point: coordinates
-          ii) polyline: length
-          iii) polygon: area space 
-        </p>    
-        <hr>  
-        <p>get current/future weather conditions </p>
-        <hr>
-        <p>get air quality measurements/acid rain occurrence</p>
-        <h3>foresters</h3>
-        <p>get fire danger </p>
-        <h3>farmers</h3>         
-        <p>get quality of soil </p>
-        <p>get water availability</p>
-        <p>be informed for any pest or diseases</p>        
-        </section>              
+          <h3>all</h3>
+          <p>coordinates</p>
+          <hr>
+          <p>get current/future weather conditions </p>
+          <hr>
+          <p>get air quality measurements/acid rain occurrence</p>
+          <h3>foresters</h3>
+          <p>get fire danger </p>
+          <h3>farmers</h3>
+          <p>get quality of soil </p>
+          <p>get water availability</p>
+          <p>be informed for any pest or diseases</p>
+        </section>
       </div>
     </main>
   </div>
 
-</div> 
+</div>
 <!-- end container-fluid -->
+<!-- <script src="https://js.arcgis.com/4.10/"></script> -->
