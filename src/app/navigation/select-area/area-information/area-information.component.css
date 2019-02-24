@@ -1,0 +1,12 @@
+.preety-text {
+    background-color: #17a2b8;
+        -webkit-background-clip: text;
+        -moz-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: rgba(255,255,255,0.5) 0px 3px 3px;
+}
+
+div.jumbotron:hover, p.jumbotron:hover {
+    box-shadow: 0px 0px 1px 1px #17a2b8;
+}

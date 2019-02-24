@@ -1,23 +1,23 @@
 @import 'https://js.arcgis.com/4.8/esri/css/main.css';
 
 .esri-view {
-    height: 700px;
-  }
+  height: 700px;
+}
 
-  p {
-    text-align: justify;
-    word-wrap: break-word;
-  }
+p {
+  text-align: justify;
+  word-wrap: break-word;
+}
 
-  div.scroll {
-    overflow: auto;
+div.scroll {
+  overflow: auto;
 }
 
 #layers {
   word-wrap: break-word;
 }
 
-#mapViewNode{
+#mapViewNode {
   position: relative;
 }
 
@@ -33,7 +33,7 @@
   height: 32px;
   width: 32px;
   text-align: center;
-  box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);  
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
 }
 
 .action-button:hover,
@@ -50,4 +50,8 @@
 
 .hide {
   display: none;
+}
+
+#esri-icons-navbar button:hover {
+  cursor: pointer;
 }

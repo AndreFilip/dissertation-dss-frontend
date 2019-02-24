@@ -12,9 +12,6 @@ import {
   Jsonp
 } from '@angular/http';
 
-// ?lat={lat}&lon={lon}';
-// fdf3690158d951e8c0031cb22966f666
-
 const httpOptions = {
   headers: new HttpHeaders({
     'Content-Type': 'application/json'
@@ -26,14 +23,14 @@ const httpOptions = {
 })
 export class AreaInformationService {
 
-  private basicUrl = 'http://api.openweathermap.org/data/2.5/weather';
-  private myArcGisID = "&APPID=fdf3690158d951e8c0031cb22966f666";
-
+  private myID = "&appid=fdf3690158d951e8c0031cb22966f666";
+  
+  private weatherDataURL = 'http://api.openweathermap.org/data/2.5/weather';
 
   constructor(private http: HttpClient, private jsonp: Jsonp) {}
 
   getWeatherData(lat: string, lon: string) {
-    return this.http.get(this.basicUrl + "?" + "lat=" + lat + "&lon=" + lon + this.myArcGisID);
+    return this.http.get(this.weatherDataURL + "?" + "lat=" + lat + "&lon=" + lon + "&units=metric" + this.myID);
   }
 
   getLengthOfPolyline(url: string) {

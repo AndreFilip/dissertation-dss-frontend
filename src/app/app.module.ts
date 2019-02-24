@@ -15,6 +15,7 @@ import { AreaInformationService } from './navigation/select-area/area-informatio
 import {JsonpModule, Jsonp, Response} from '@angular/http';
 import { PolylineInformationComponent } from './navigation/select-area/polyline-information/polyline-information.component';
 import { PolygonInformationComponent } from './navigation/select-area/polygon-information/polygon-information.component';
+import { WeatherTemplateComponent } from './navigation/select-area/area-information/weather-template/weather-template.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { PolygonInformationComponent } from './navigation/select-area/polygon-in
     SelectAreaComponent,
     AreaInformationComponent,
     PolylineInformationComponent,
-    PolygonInformationComponent
+    PolygonInformationComponent,
+    WeatherTemplateComponent
   ],
   imports: [
     BrowserModule,
