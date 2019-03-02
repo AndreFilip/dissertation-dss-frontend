@@ -38,13 +38,13 @@
         <fieldset id="areaTexts" class="collapse">
           <label for="changeTitle" class="font-weight-bold row">Title:</label>
           <div class="row justify-content-between">
-            <input class="m-1 col-6" id="changeTitle" />
+            <input class="m-1 col-6" id="changeTitle" [value]="selectedGraphic?.attributes?.title" />
             <button class="m-1 col-4 btn btn-primary btn-sm" type="button" title="Change title" id="" (click)="changeTitle()">Save</button>
           </div>
           <hr>
           <label for="changeComments" class="font-weight-bold row">Comments:</label>
           <div class="row">
-            <textarea class="m-1 col-12" id="changeComments" maxlength rows="6"></textarea>
+            <textarea class="m-1 col-12" id="changeComments" maxlength rows="6" [value]="selectedGraphic?.attributes?.comments"></textarea>
             <button class="m-1 btn btn-primary btn-sm" type="button" title="Change comments" id="" (click)="changeComments()">Save</button>
           </div>
           <p class="hide" style="color:green" id="succesTitle">Title changed</p>
@@ -59,7 +59,7 @@
         <div id="areaColor" class="collapse">
           <label for="areaColor" class="font-weight-bold row">Select color:</label>
           <div id="color" class="row justify-content-between m-2">
-            <input type="color" id="color" name="color" class="col-4 mt-2 mt-lg-0" #chooseColor2 />
+            <input type="color" id="color" name="color" class="col-4 mt-2 mt-lg-0" #chooseColor2 [value]="selectedGraphic?.symbol?.color.toHex()" />
             <button class="btn btn-primary btn-sm col-6 ml-2 mt-2 mt-lg-0" type="button" title="" id="" (click)="changeColor(chooseColor2.value)">Save</button>
           </div>
         </div>
@@ -94,13 +94,22 @@
             [type]="type" *ngIf="type && latitude && longitude && selectedGraphic"></app-area-information>
         </section>
         <section class="col-12">
-          <p>get future weather conditions </p>          
-          <p>get air quality measurementsa</p>
+          <div class="row">
+            <ngb-tabset>
+              <ngb-tab *ngFor="let wo of wos">
+                <ng-template ngbTabTitle>{{ wo.dt * 1000 | date:'dd/MM - HH:mm' }}</ng-template>
+                <ng-template ngbTabContent>
+                  <app-weather-template-forecast [wo]="wo"></app-weather-template-forecast>
+                </ng-template>
+              </ngb-tab>
+            </ngb-tabset>
+          </div>
+          <!-- <p>get air quality measurements</p>
           <p>get acid rain occurrence</p>
           <p>get fire danger </p>
           <p>get quality of soil </p>
           <p>get water availability</p>
-          <p>be informed for any pest or diseases</p>          
+          <p>be informed for any pest or diseases</p> -->
         </section>
       </div>
     </main>

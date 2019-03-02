@@ -1,6 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 
-import { WeatherObject } from './../../../../weatherObject.model'
+import { WeatherObject } from './../../../../weatherObject.model';
+
+import {AreaInformationService} from '../area-information.service';
 
 @Component({
   selector: 'app-weather-template',
@@ -14,17 +16,15 @@ export class WeatherTemplateComponent implements OnInit {
   private imageAlt: string;
   private iconUrl = 'http://openweathermap.org/img/w/'; 
 
-  constructor() { }
+  constructor(private areaInformationService:AreaInformationService) { }
 
   ngOnInit() {
-    //console.log(this.wo);    
     this.imageUrl = this.iconUrl + this.wo.weatherIcon + '.png';
     this.imageAlt = this.wo.weatherDesc;
   }
 
-}
+  getForecast() {
+    this.areaInformationService.forecasts.next(true);
+  }
 
-// constructor(public long ? : number, public lat ? : number, public weatherMain ? : string, public weatherDesc ? : string, public weatherIcon ? : string, 
-//   public temperature ? : number, public pressure ? : number, public humidity ? : number, public windSpeed ? : number, public windDeg ? : number, public clouds ? : number,
-//       public rain1 ? : number, public rain3 ? : number, public snow1 ? : number, public snow3 ? : number, public dt ? : number, public sunrise ? : number, public sunset ? : number,
-//        public region ? : string) {}
+}

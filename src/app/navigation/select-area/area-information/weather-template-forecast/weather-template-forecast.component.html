@@ -1,0 +1,115 @@
+<div class="card" style="border:none !important">
+    <div class="card-body">
+        <div class="row">
+            <h3 class="">Forecast for {{ wo.dt * 1000 | date:'EEEE, dd/MM/yyyy, HH:mm' }}</h3>
+            <div class="col-12 col-sm-4 col-lg-12 bg-info"><img class="img-responsive" [src]="imageUrl" [alt]="imageAlt"></div>
+            <div class="col-12 col-sm-8 col-lg-12 mt-1">
+                <h5 class="">{{wo.weather[0].main}}</h5>
+                <small class="mt-0">Especially, in your region will prevail {{ wo.weather[0].description }}.</small>
+            </div>
+            <hr class="headers">
+        </div>
+        <div class="card-text mt-2">
+            <p class="" *ngIf="wo?.main?.temp">The temperature will be <span class="font-weight-bold preety-text ">{{ wo.main.temp }} <sup class="font-weight-bold preety-text ">o</sup>C</span></p>
+            <p class="" *ngIf="wo?.wind?.speed">The windSpeed will be <span class="font-weight-bold preety-text ">{{ wo.wind.speed }} meter/sec</span></p>
+            <p class="" *ngIf="wo?.wind?.deg">The direction will be <span class="font-weight-bold preety-text ">{{ wo.wind.deg | number:'1.0-0' }} degrees</span></p>
+            <p class="" *ngIf="wo?.clouds?.all">The cloud percentage will be <span class="font-weight-bold preety-text ">{{ wo.clouds.all }}%</span></p>
+            <p class="" *ngIf="wo?.rain && wo?.rain['3h']">The rain volume for the last 3 hours will be <span class="font-weight-bold preety-text ">{{ wo.rain['3h'] | number:'1.0-6' }} mm</span></p>
+            <p class="" *ngIf="wo?.snow && wo?.snow['3h']">The snow volume for the last 3 hours will be <span class="font-weight-bold preety-text ">{{ wo.snow['3h'] | number:'1.0-6' }} mm</span></p>
+            <p class="" *ngIf="wo?.main?.pressure">The atmospheric pressure will be <span class="font-weight-bold preety-text ">{{ wo.main.pressure }} hPa</span></p>
+            <p class="" *ngIf="wo?.main?.humidity">The percentage of humidity will be <span class="font-weight-bold preety-text ">{{ wo.main.humidity }}%</span></p>
+        </div> 
+    </div>
+</div>
+
+
+<!-- "cod": "200",
+"message": 0.005,
+"cnt": 40,
+"list": [
+  {
+    "dt": 1551538800,
+    "main": {
+      "temp": 9.83,
+      "temp_min": 9.83,
+      "temp_max": 11.94,
+      "pressure": 1019.65,
+      "sea_level": 1019.65,
+      "grnd_level": 1010.32,
+      "humidity": 100,
+      "temp_kf": -2.11
+    },
+    "weather": [
+      {
+        "id": 500,
+        "main": "Rain",
+        "description": "light rain",
+        "icon": "10n"
+      }
+    ],
+    "clouds": {
+      "all": 92
+    },
+    "wind": {
+      "speed": 3.4,
+      "deg": 57.5025
+    },
+    "rain": {
+      "3h": 0.325
+    },
+    "sys": {
+      "pod": "n"
+    },
+    "dt_txt": "2019-03-02 15:00:00"
+  },
+.... 
+"city": {
+  "id": 1851632,
+  "name": "Shuzenji",
+  "coord": {
+    "lat": 34.9667,
+    "lon": 138.9333
+  },
+  "country": "JP"
+}
+}  -->
+
+
+<!-- forecast -->
+<!-- api.openweathermap.org/data/2.5/forecast?lat=35&lon=139 -->
+<!-- code Internal parameter
+message Internal parameter
+city
+city.id City ID
+city.name City name
+city.coord
+city.coord.lat City geo location, latitude
+city.coord.lon City geo location, longitude
+city.country Country code (GB, JP etc.)
+cnt Number of lines returned by this API call
+list
+list.dt Time of data forecasted, unix, UTC
+list.main
+list.main.temp Temperature. Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit.
+list.main.temp_min Minimum temperature at the moment of calculation. This will be deviation from 'temp' that will be possible for large cities and megalopolises geographically expanded (use these parameter optionally). Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit.
+list.main.temp_max Maximum temperature at the moment of calculation. This will be deviation from 'temp' that will be possible for large cities and megalopolises geographically expanded (use these parameter optionally). Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit.
+list.main.pressure Atmospheric pressure on the sea level by default, hPa
+list.main.sea_level Atmospheric pressure on the sea level, hPa
+list.main.grnd_level Atmospheric pressure on the ground level, hPa
+list.main.humidity Humidity, %
+list.main.temp_kf Internal parameter
+list.weather (more info Weather condition codes)
+list.weather.id Weather condition id
+list.weather.main Group of weather parameters (Rain, Snow, Extreme etc.)
+list.weather.description Weather condition within the group
+list.weather.icon Weather icon id
+list.clouds
+list.clouds.all Cloudiness, %
+list.wind
+list.wind.speed Wind speed. Unit Default: meter/sec, Metric: meter/sec, Imperial: miles/hour.
+list.wind.deg Wind direction, degrees (meteorological)
+list.rain
+list.rain.3h Rain volume for last 3 hours, mm
+list.snow
+list.snow.3h Snow volume for last 3 hours
+list.dt_txt Data/time of calculation, UTC -->

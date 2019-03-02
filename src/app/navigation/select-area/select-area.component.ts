@@ -2,7 +2,8 @@ import {
   Component,
   OnInit,
   ElementRef,
-  ViewChild
+  ViewChild,
+  OnDestroy
 } from '@angular/core';
 import {
   loadModules
@@ -22,10 +23,8 @@ import {
 import {
   AreaInformationService
 } from './area-information/area-information.service';
-import {
-  P
-} from '@angular/core/src/render3';
-// import * as $ from 'jquery';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-select-area',
@@ -33,7 +32,7 @@ import {
   styleUrls: ['./select-area.component.css']
 })
 
-export class SelectAreaComponent implements OnInit {
+export class SelectAreaComponent implements OnInit, OnDestroy {
 
   private mapView: esri.MapView;
   private tempGraphicsLayer: esri.GraphicsLayer;
@@ -47,6 +46,9 @@ export class SelectAreaComponent implements OnInit {
   private longitude;
   private polylineLength;
   private type;
+  private subscription: Subscription;
+
+  private wos = [];
 
   @ViewChild('mapViewNode') private mapViewEl: ElementRef;
   @ViewChild('streetsLayer') private streetsLayerEl: ElementRef;
@@ -59,6 +61,20 @@ export class SelectAreaComponent implements OnInit {
 
   ngOnInit() {
     this.initializeMap();
+    this.subscription = this.areaInformationService.forecasts.subscribe( (forecasts) => { 
+      if (forecasts && this.latitude && this.longitude && this.wos.length == 0) {
+        this.areaInformationService.getWeatherForecastData(this.latitude, this.longitude).subscribe( (data) => {
+          //console.log(data);
+          if ((<any>data).cod == 200) {
+            this.wos = (<any>data).list;
+          }
+        });
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 
   async initializeMap() {
@@ -186,10 +202,11 @@ export class SelectAreaComponent implements OnInit {
             component.selectedGraphic = null;
             component.latitude = null;
             component.longitude = null;
+            component.wos = [];
 
             component.tempGraphicsLayer.add(graphic);
           } catch (er) {
-            console.log(er);
+            console.log("component.sketchViewModel.on('create-complete'): " , er);
           }
 
         });
@@ -206,6 +223,56 @@ export class SelectAreaComponent implements OnInit {
     }
 
   } //initializeMap() end  
+
+
+  setUpClickHandler() {
+    let component = this;
+    component.mapView.on("click", function (event) {
+
+      component.mapView.hitTest(event).then(function (response) {
+        let results = response.results;
+        if (results.length && results[results.length - 1].graphic) {
+          component.selectedGraphic = results[results.length - 1].graphic;
+
+          if (component.selectedGraphic.geometry.type == "polyline") {
+            // this sets polylineLength property
+            component.getLengthOfPolyline(( < any > results[results.length - 1].graphic.geometry).paths);
+            component.latitude = null;
+            component.longitude = null;
+            component.type = null;
+            component.area = null;
+            component.wos = [];
+          } else if (component.selectedGraphic.geometry.type == "point") {
+            component.latitude = ( < esri.Point > component.selectedGraphic.geometry).latitude;
+            component.longitude = ( < esri.Point > component.selectedGraphic.geometry).longitude;
+            component.type = ( < any > component.selectedGraphic).geometry.type;
+            component.polylineLength = null;
+            component.area = null;
+            component.wos = [];
+          } else if (component.selectedGraphic.geometry.type == "polygon") {
+            component.latitude = ( < esri.Polygon > component.selectedGraphic.geometry).centroid.latitude;
+            component.longitude = ( < esri.Polygon > component.selectedGraphic.geometry).centroid.longitude;
+            component.type = ( < any > component.selectedGraphic).geometry.type;
+            component.polylineLength = null;
+            // this sets area property
+            component.getAreaOfPolygons(( < any > component.selectedGraphic.geometry).rings);
+            component.wos = [];
+          }
+          //console.log((<any>component.selectedGraphic.symbol).color.toHex());
+
+        } else {
+          component.selectedGraphic = null;
+          component.latitude = null;
+          component.longitude = null;
+          component.polylineLength = null;
+          component.area = null;
+          component.type = null;
+          component.wos = [];
+        }
+      });
+
+    });
+  }
 
   //draw a point/polyline/polygon/delete a graphic from view
   drawGrahic(event) {
@@ -232,15 +299,15 @@ export class SelectAreaComponent implements OnInit {
         }
 
       case "editButton":
-      {
+        {
 
-        if (component.selectedGraphic != null) {
-          component.sketchViewModel.update(component.selectedGraphic);
-        } else {
-          alert("Choose a graphic first!");
+          if (component.selectedGraphic != null) {
+            component.sketchViewModel.update(component.selectedGraphic);
+          } else {
+            alert("Choose a graphic first!");
+          }
+          break;
         }
-        break;
-      }
 
       case "resetButton":
         {
@@ -255,7 +322,7 @@ export class SelectAreaComponent implements OnInit {
                 this.selectedGraphic == null;
               } else {
                 this.pointserviceService.deleteGraphic(this.selectedGraphic.attributes.idReturned).subscribe(results => {
-                    console.log("Deleted 1 graphic?");
+                    console.log("Successfully deleted the graphic.");
                     this.tempGraphicsLayer.graphics.remove(this.selectedGraphic);
                     this.selectedGraphic == null;
                     this.mapView.goTo({
@@ -264,7 +331,7 @@ export class SelectAreaComponent implements OnInit {
 
                   },
                   error => {
-                    console.log("Error in drawGrahic-resetButton: ", error);
+                    console.log("Error in drawGrahic()-resetButton: ", error);
 
                   });
               }
@@ -276,12 +343,120 @@ export class SelectAreaComponent implements OnInit {
         }
       default:
         {
+          component.wos = [];
           break;
         }
     }
 
-  } //end drawGrahic()    
+  } //end drawGrahic()     
 
+  updateGraphic(event) {
+    let component = this;
+    event.graphic.geometry = event.geometry;
+    component.tempGraphicsLayer.add(event.graphic);
+    component.tempGraphicsLayer.graphics.remove(component.selectedGraphic);
+    component.mapView.goTo({
+      target: component.mapView.center,
+    });
+    component.wos = [];
+
+  }
+
+
+  saveGraphics() {
+    let component = this;
+
+    let graphicsCollection = component.tempGraphicsLayer.graphics;
+
+    if (graphicsCollection.length > 0) {
+      let graphicsToSave: Array < any > = [];
+      let graphicsToDelete: Array < any > = [];
+
+      for (let graphic of graphicsCollection.toArray()) {
+        if (graphic.geometry.type === "point") {
+          graphicsToDelete.push(graphic);
+          let comments = graphic.attributes.comments;
+          let title = graphic.attributes.title;
+          let idReturned = graphic.attributes.idReturned;
+
+          let latitude = ( < esri.Point > graphic.geometry).latitude;
+          let longitude = ( < esri.Point > graphic.geometry).longitude;
+          let type = graphic.geometry.type;
+          let paths = null;
+          let color = new Color(( < esri.SimpleMarkerSymbol > graphic.symbol).color.r, ( < esri.SimpleMarkerSymbol > graphic.symbol).color.b, ( < esri.SimpleMarkerSymbol > graphic.symbol).color.g);
+          let graphicPoint = new Point(title, comments, latitude, longitude, color, paths, type, idReturned);
+          graphicsToSave.push(graphicPoint);
+        }
+
+        if (graphic.geometry.type === "polyline") {
+          graphicsToDelete.push(graphic);
+          let comments = graphic.attributes.comments;
+          let title = graphic.attributes.title;
+          let idReturned = graphic.attributes.idReturned;
+          let latitude = null;
+          let longitude = null;
+          let type = graphic.geometry.type;
+          let paths = (( < esri.Polyline > graphic.geometry).paths).toString();
+          let color = new Color(( < esri.SimpleLineSymbol > graphic.symbol).color.r, ( < esri.SimpleLineSymbol > graphic.symbol).color.b, ( < esri.SimpleLineSymbol > graphic.symbol).color.g);
+          let graphicPolyline = new Point(title, comments, latitude, longitude, color, paths, type, idReturned);
+          graphicsToSave.push(graphicPolyline);
+        }
+
+        if (graphic.geometry.type === "polygon") {
+          graphicsToDelete.push(graphic);
+          let comments = graphic.attributes.comments;
+          let title = graphic.attributes.title;
+          let idReturned = graphic.attributes.idReturned;
+          // maybe i should save centroid ?
+          let latitude = null;
+          let longitude = null;
+          let type = graphic.geometry.type;
+          let paths = (( < esri.Polygon > graphic.geometry).rings).toString();
+          let color = new Color(( < esri.SimpleFillSymbol > graphic.symbol).color.r, ( < esri.SimpleFillSymbol > graphic.symbol).color.b, ( < esri.SimpleFillSymbol > graphic.symbol).color.g);
+          let graphicPolygon = new Point(title, comments, latitude, longitude, color, paths, type, idReturned);
+          graphicsToSave.push(graphicPolygon);
+        }
+      }
+      graphicsCollection.removeMany(graphicsToDelete);
+
+      // component.pointserviceService.saveGraphics(graphicsToSave).subscribe(
+      // results => { 
+      // graphicsCollection.removeMany(graphicsToDelete);
+      // // this.loadGraphics();        
+      // }, 
+      // error => {
+      // console.log("Error saveGraphics: ", error);
+      // }
+      // );
+    }
+  }
+
+
+  loadGraphics() {
+    // let component = this;
+    // let allGraphicsDesignedCurrently = component.tempGraphicsLayer.graphics;
+    // allGraphicsDesignedCurrently.forEach(element => {
+    //   // if (element.attributes.id == null) {
+    //     allGraphicsDesignedCurrently.remove(element);
+    //   // }
+    // });
+
+    // component.pointserviceService.getGraphics().subscribe(
+    //   results => {     
+    //   if (results.length > 0) {
+    //     for (let graphic of results) {
+    //       component.drawGraphicAfterLoading(graphic);
+    //     }        
+    //   }
+    //   component.mapView.goTo({
+    //     target: component.mapView.center ,
+    //   });
+    // }, 
+    // error => {
+    //   console.log("Error in loadGraphics(): ", error);
+
+    // });
+  }
 
   async drawGraphicAfterLoading(graphicFromServer) {
     let component = this;
@@ -406,7 +581,23 @@ export class SelectAreaComponent implements OnInit {
 
   } //end drawGrahicAfterLoading() 
 
+
+  deleteGraphics() {
+    let component = this;
+
+    // component.pointserviceService.deleteGraphics().subscribe(
+    //   results => {      
+    //   console.log("Sucessful deleteGraphics()");
+    // }, 
+    // error => {
+    //   console.log("Error in deleteGraphics(): ", error);
+    // }
+    // );
+  }
+
   async changeColor(value) {
+    // console.log(value);
+    
     let component = this;
     var [Color] = await loadModules([
       'esri/Color'
@@ -433,129 +624,9 @@ export class SelectAreaComponent implements OnInit {
       });
       ( < esri.SimpleFillSymbol > component.selectedGraphic.symbol).color.a = 0.7;
     }
-  }
 
-  loadGraphics() {
-    // let component = this;
-    // let allGraphicsDesignedCurrently = component.tempGraphicsLayer.graphics;
-    // allGraphicsDesignedCurrently.forEach(element => {
-    //   // if (element.attributes.id == null) {
-    //     allGraphicsDesignedCurrently.remove(element);
-    //   // }
-    // });
+        //console.log((<any>component.selectedGraphic.symbol).color.toHex());
 
-    // component.pointserviceService.getGraphics().subscribe(
-    //   results => {     
-    //   if (results.length > 0) {
-    //     for (let graphic of results) {
-    //       component.drawGraphicAfterLoading(graphic);
-    //     }        
-    //   }
-    //   component.mapView.goTo({
-    //     target: component.mapView.center ,
-    //   });
-    // }, 
-    // error => {
-    //   console.log("Error in loadGraphics(): ", error);
-
-    // });
-  }
-
-  saveGraphics() {
-    let component = this;
-
-    let graphicsCollection = component.tempGraphicsLayer.graphics;
-
-    if (graphicsCollection.length > 0) {
-      let graphicsToSave: Array < any > = [];
-      let graphicsToDelete: Array < any > = [];
-
-      for (let graphic of graphicsCollection.toArray()) {
-        if (graphic.geometry.type === "point") {
-          graphicsToDelete.push(graphic);
-          let comments = graphic.attributes.comments;
-          let title = graphic.attributes.title;
-          let idReturned = graphic.attributes.idReturned;
-
-          let latitude = ( < esri.Point > graphic.geometry).latitude;
-          let longitude = ( < esri.Point > graphic.geometry).longitude;
-          let type = graphic.geometry.type;
-          let paths = null;
-          let color = new Color(( < esri.SimpleMarkerSymbol > graphic.symbol).color.r, ( < esri.SimpleMarkerSymbol > graphic.symbol).color.b, ( < esri.SimpleMarkerSymbol > graphic.symbol).color.g);
-          let graphicPoint = new Point(title, comments, latitude, longitude, color, paths, type, idReturned);
-          graphicsToSave.push(graphicPoint);
-        }
-
-        if (graphic.geometry.type === "polyline") {
-          graphicsToDelete.push(graphic);
-          let comments = graphic.attributes.comments;
-          let title = graphic.attributes.title;
-          let idReturned = graphic.attributes.idReturned;
-          let latitude = null;
-          let longitude = null;
-          let type = graphic.geometry.type;
-          let paths = (( < esri.Polyline > graphic.geometry).paths).toString();
-          let color = new Color(( < esri.SimpleLineSymbol > graphic.symbol).color.r, ( < esri.SimpleLineSymbol > graphic.symbol).color.b, ( < esri.SimpleLineSymbol > graphic.symbol).color.g);
-          let graphicPolyline = new Point(title, comments, latitude, longitude, color, paths, type, idReturned);
-          graphicsToSave.push(graphicPolyline);
-        }
-
-        if (graphic.geometry.type === "polygon") {
-          graphicsToDelete.push(graphic);
-          let comments = graphic.attributes.comments;
-          let title = graphic.attributes.title;
-          let idReturned = graphic.attributes.idReturned;
-          // maybe i should save centroid ?
-          let latitude = null;
-          let longitude = null;
-          let type = graphic.geometry.type;
-          let paths = (( < esri.Polygon > graphic.geometry).rings).toString();
-          let color = new Color(( < esri.SimpleFillSymbol > graphic.symbol).color.r, ( < esri.SimpleFillSymbol > graphic.symbol).color.b, ( < esri.SimpleFillSymbol > graphic.symbol).color.g);
-          let graphicPolygon = new Point(title, comments, latitude, longitude, color, paths, type, idReturned);
-          graphicsToSave.push(graphicPolygon);
-        }
-      }
-      graphicsCollection.removeMany(graphicsToDelete);
-
-      // component.pointserviceService.saveGraphics(graphicsToSave).subscribe(
-      // results => { 
-      // graphicsCollection.removeMany(graphicsToDelete);
-      // // this.loadGraphics();        
-      // }, 
-      // error => {
-      // console.log("Error saveGraphics: ", error);
-      // }
-      // );
-    }
-  }
-
-  deleteGraphics() {
-    let component = this;
-
-    // component.pointserviceService.deleteGraphics().subscribe(
-    //   results => {      
-    //   console.log("Sucessful deleteGraphics()");
-    // }, 
-    // error => {
-    //   console.log("Error in deleteGraphics(): ", error);
-    // }
-    // );
-  }
-
-  makeArrayFromString(arrayInString) {
-    let returnedArray = [];
-    let arrayWithCommas = arrayInString.split(",");
-    let returnedArray2 = [];
-    for (let i = 0; i < arrayWithCommas.length; i = i + 2) {
-      let a = Number(arrayWithCommas[i]);
-      let b = Number(arrayWithCommas[i + 1]);
-      let littleArray = [];
-      littleArray.push(a);
-      littleArray.push(b);
-      returnedArray.push(littleArray);
-    }
-    returnedArray2.push(returnedArray);
-    return returnedArray2;
   }
 
   changeTitle() {
@@ -566,7 +637,7 @@ export class SelectAreaComponent implements OnInit {
       alert("Choose a graphic first!");
     } else {
       component.selectedGraphic.attributes.title = newtitle;
-      inputEl.value = "";
+      //inputEl.value = "";
       component.showSuccessTitle();
     }
   }
@@ -582,13 +653,15 @@ export class SelectAreaComponent implements OnInit {
 
   changeComments() {
     let component = this;
-    let inputEl = < HTMLInputElement > document.getElementById("changeComments");
+    let inputEl = < HTMLTextAreaElement > document.getElementById("changeComments");
+    // console.log(inputEl);
+    
     let newcomments = inputEl.value;
     if (!component.selectedGraphic) {
       alert("Choose a graphic first!");
     } else {
       component.selectedGraphic.attributes.comments = newcomments;
-      inputEl.value = "";
+      //inputEl.value = "";
       component.showSuccessComments();
     }
   }
@@ -599,60 +672,6 @@ export class SelectAreaComponent implements OnInit {
     setTimeout(() => {
       succesCommentsEl.classList.add("hide");
     }, 3000);
-  }
-
-  setUpClickHandler() {
-    let component = this;
-    component.mapView.on("click", function (event) {
-
-      component.mapView.hitTest(event).then(function (response) {
-        let results = response.results;
-        if (results.length && results[results.length - 1].graphic) {
-          component.selectedGraphic = results[results.length - 1].graphic;
-
-          if (component.selectedGraphic.geometry.type == "polyline") {
-            // this sets polylineLength property
-            component.getLengthOfPolyline(( < any > results[results.length - 1].graphic.geometry).paths);
-            component.latitude = null;
-            component.longitude = null;
-            component.type = null;
-            component.area = null;
-          } else if (component.selectedGraphic.geometry.type == "point") {
-            component.latitude = ( < esri.Point > component.selectedGraphic.geometry).latitude;
-            component.longitude = ( < esri.Point > component.selectedGraphic.geometry).longitude;
-            component.type = ( < any > component.selectedGraphic).geometry.type;
-            component.polylineLength = null;
-            component.area = null;
-          } else if (component.selectedGraphic.geometry.type == "polygon") {
-            component.latitude = ( < esri.Polygon > component.selectedGraphic.geometry).centroid.latitude;
-            component.longitude = ( < esri.Polygon > component.selectedGraphic.geometry).centroid.longitude;
-            component.type = ( < any > component.selectedGraphic).geometry.type;
-            component.polylineLength = null;
-            // this sets area property
-            component.getAreaOfPolygons(( < any > component.selectedGraphic.geometry).rings);
-          }
-
-        } else {
-          component.selectedGraphic = null;
-          component.latitude = null;
-          component.longitude = null;
-          component.polylineLength = null;
-          component.area = null;
-          component.type = null;
-        }
-      });
-
-    });
-  }
-
-  updateGraphic(event) {
-    let component = this;
-    event.graphic.geometry = event.geometry;
-    component.tempGraphicsLayer.add(event.graphic);
-    component.tempGraphicsLayer.graphics.remove(component.selectedGraphic);
-    component.mapView.goTo({
-      target: component.mapView.center,
-    });
   }
 
   // https://developers.arcgis.com/rest/services-reference/project.htm
@@ -683,7 +702,7 @@ export class SelectAreaComponent implements OnInit {
 
       }
     }, error => {
-      console.log(error);
+      console.log("getLengthOfPolyline : " , error);
     })
   }
 
@@ -700,16 +719,16 @@ export class SelectAreaComponent implements OnInit {
       url += "[" + result + "]]]}]}&f=json";
       component.areaInformationService.getLengthOfPolyline(url).subscribe((response) => {
         let rings = ( < any > response)._body.geometries[0].rings[0];
-        console.log(rings);
+        //console.log(rings);
 
         component.area = component.getAreaOfPolygon(rings);
-        console.log(component.area);
+        //console.log(component.area);
 
         if (component.polylineLength) {
           component.polylineLength = null;
         }
       }, error => {
-        console.log(error);
+        console.log("getAreaOfPolygons: " , error);
       })
     } else if (pathsArray.length > 1) {
       pathsArray.forEach(element => {
@@ -723,20 +742,20 @@ export class SelectAreaComponent implements OnInit {
       component.areaInformationService.getLengthOfPolyline(url).subscribe((response) => {
         let geometries = ( < any > response)._body.geometries;
         let area = null;
-        console.log(geometries);
+        //console.log(geometries);
 
         geometries.forEach(element => {
           area += component.getAreaOfPolygon(element.rings[0]);
         });
         component.area = area;
-        console.log(component.area);
+        //console.log(component.area);
 
         if (component.polylineLength) {
           component.polylineLength = null;
         }
 
       }, error => {
-        console.log(error);
+        console.log("getAreaOfPolygons: " , error);
       })
 
     }
@@ -791,6 +810,22 @@ export class SelectAreaComponent implements OnInit {
     }
   }
 
+  makeArrayFromString(arrayInString) {
+    let returnedArray = [];
+    let arrayWithCommas = arrayInString.split(",");
+    let returnedArray2 = [];
+    for (let i = 0; i < arrayWithCommas.length; i = i + 2) {
+      let a = Number(arrayWithCommas[i]);
+      let b = Number(arrayWithCommas[i + 1]);
+      let littleArray = [];
+      littleArray.push(a);
+      littleArray.push(b);
+      returnedArray.push(littleArray);
+    }
+    returnedArray2.push(returnedArray);
+    return returnedArray2;
+  }
+
   convertToRadian(input) {
     return input * Math.PI / 180;
   }
@@ -813,14 +848,13 @@ export class SelectAreaComponent implements OnInit {
 
 
   test() {
-    console.log(this.selectedGraphic);
+    console.log("this.selectedGraphic : " , this.selectedGraphic);
   }
 
   test2() {}
 
   onGet() {}
-
-
+ 
 
 } //end SelectAreaComponent
 

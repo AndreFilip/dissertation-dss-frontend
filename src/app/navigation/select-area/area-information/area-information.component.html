@@ -1,5 +1,6 @@
 <p class="jumbotron py-2 mb-1"><span [innerHTML]="type=='point' ? 'Your point coordinates are:' : 'Your polygon\'s centroid coordinates are:'"></span><br>
-  <span class="preety-text font-weight-bold"> longitude <span class="font-weight-normal" style="color:initial">=</span> {{ longitude }} <br>latitute <span class="font-weight-normal" style="color:black">=</span>  {{ latitude }} </span></p>
+  <span class="preety-text font-weight-bold"> longitude <span class="font-weight-normal" style="color:initial">=</span>
+    {{ longitude }} <br>latitute <span class="font-weight-normal" style="color:black">=</span> {{ latitude }} </span></p>
 <div *ngIf="wo" class="jumbotron py-2 mb-1">
   <h5 class="mb-0">Information about your region, {{ wo.region}}:</h5>
   <small class="">(The time of the calculation was {{ wo.dt * 1000 | date:'EEEE, dd/MM/yyyy, HH:mm z' }})</small>
@@ -9,7 +10,7 @@
       }}</span></p>
 </div>
 <app-weather-template *ngIf="wo" [weatherObject]="wo"></app-weather-template>
-<hr>
+
 
 
 
@@ -26,44 +27,7 @@ fdf3690158d951e8c0031cb22966f666 -->
 <!-- http://openweathermap.org/img/w/10d.png -->
 
 
-<!-- forecast -->
-<!-- api.openweathermap.org/data/2.5/forecast?lat=35&lon=139 -->
-<!-- code Internal parameter
-message Internal parameter
-city
-city.id City ID
-city.name City name
-city.coord
-city.coord.lat City geo location, latitude
-city.coord.lon City geo location, longitude
-city.country Country code (GB, JP etc.)
-cnt Number of lines returned by this API call
-list
-list.dt Time of data forecasted, unix, UTC
-list.main
-list.main.temp Temperature. Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit.
-list.main.temp_min Minimum temperature at the moment of calculation. This is deviation from 'temp' that is possible for large cities and megalopolises geographically expanded (use these parameter optionally). Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit.
-list.main.temp_max Maximum temperature at the moment of calculation. This is deviation from 'temp' that is possible for large cities and megalopolises geographically expanded (use these parameter optionally). Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit.
-list.main.pressure Atmospheric pressure on the sea level by default, hPa
-list.main.sea_level Atmospheric pressure on the sea level, hPa
-list.main.grnd_level Atmospheric pressure on the ground level, hPa
-list.main.humidity Humidity, %
-list.main.temp_kf Internal parameter
-list.weather (more info Weather condition codes)
-list.weather.id Weather condition id
-list.weather.main Group of weather parameters (Rain, Snow, Extreme etc.)
-list.weather.description Weather condition within the group
-list.weather.icon Weather icon id
-list.clouds
-list.clouds.all Cloudiness, %
-list.wind
-list.wind.speed Wind speed. Unit Default: meter/sec, Metric: meter/sec, Imperial: miles/hour.
-list.wind.deg Wind direction, degrees (meteorological)
-list.rain
-list.rain.3h Rain volume for last 3 hours, mm
-list.snow
-list.snow.3h Snow volume for last 3 hours
-list.dt_txt Data/time of calculation, UTC -->
+
 
 <!-- UV -->
 <!-- api.openweathermap.org/data/2.5/uvi?lat=37.75&lon=-122.37 -->

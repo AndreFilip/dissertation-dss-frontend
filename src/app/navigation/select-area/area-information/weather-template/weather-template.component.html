@@ -20,7 +20,8 @@
             <p class="" *ngIf="wo?.snow3">The snow volume for the last 3 hours is <span class="font-weight-bold preety-text ">{{ wo.snow3 }} mm</span></p>
             <p class="" *ngIf="wo?.pressure">The atmospheric pressure is <span class="font-weight-bold preety-text ">{{ wo.pressure }} hPa</span></p>
             <p class="" *ngIf="wo?.humidity">The percentage of humidity is <span class="font-weight-bold preety-text ">{{ wo.humidity }}%</span></p>
-        </div> 
+        </div>
+        <button type="button" (click)="getForecast()" class="btn btn-info float-right">Get forecast</button>
     </div>
 </div>
 
