@@ -25,6 +25,7 @@ import {
 } from './area-information/area-information.service';
 
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-select-area',
@@ -46,7 +47,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
   private longitude;
   private polylineLength;
   private type;
-  private subscription: Subscription;
+  private forecastSubscription: Subscription;
 
   private wos = [];
 
@@ -54,27 +55,31 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
   @ViewChild('streetsLayer') private streetsLayerEl: ElementRef;
   @ViewChild('fire') private fireEl: ElementRef;
 
-  constructor(private pointserviceService: PointserviceService, private areaInformationService: AreaInformationService) {}
+  constructor(private pointserviceService: PointserviceService, private areaInformationService: AreaInformationService, private router: Router) {}
 
   private herokuhost: string = "https://sleepy-brook-85346.herokuapp.com";
   private localhost: string = "localhost:8080";
 
   ngOnInit() {
     this.initializeMap();
-    this.subscription = this.areaInformationService.forecasts.subscribe( (forecasts) => { 
+    this.forecastSubscription = this.areaInformationService.forecasts.subscribe( (forecasts) => { 
       if (forecasts && this.latitude && this.longitude && this.wos.length == 0) {
         this.areaInformationService.getWeatherForecastData(this.latitude, this.longitude).subscribe( (data) => {
           //console.log(data);
           if ((<any>data).cod == 200) {
             this.wos = (<any>data).list;
+            // this.router.navigate(['']);
           }
         });
+      }
+      if (!forecasts) {
+        this.wos = [];
       }
     });
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    this.forecastSubscription.unsubscribe();
   }
 
   async initializeMap() {
@@ -179,7 +184,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
               },
               popupTemplate: {
                 title: "<p class='font-weight-bold'>{title}</p><hr>",
-                content: `{comments} <br> <hr>`
+                content: `<textarea maxlength="250" rows="4" cols="42" style="overflow:auto"> {comments} </textarea> <hr>`
               }
             });
 
@@ -202,11 +207,18 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
             component.selectedGraphic = null;
             component.latitude = null;
             component.longitude = null;
-            component.wos = [];
+            //component.wos = [];
 
             component.tempGraphicsLayer.add(graphic);
-          } catch (er) {
-            console.log("component.sketchViewModel.on('create-complete'): " , er);
+          } catch (error) {
+            console.log("component.sketchViewModel.on('create-complete'): " , error);
+            component.area = null;
+            component.polylineLength = null;
+            component.type = null;
+            component.selectedGraphic = null;
+            component.latitude = null;
+            component.longitude = null;
+            //component.wos = [];
           }
 
         });
@@ -241,14 +253,12 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
             component.longitude = null;
             component.type = null;
             component.area = null;
-            component.wos = [];
           } else if (component.selectedGraphic.geometry.type == "point") {
             component.latitude = ( < esri.Point > component.selectedGraphic.geometry).latitude;
             component.longitude = ( < esri.Point > component.selectedGraphic.geometry).longitude;
             component.type = ( < any > component.selectedGraphic).geometry.type;
             component.polylineLength = null;
             component.area = null;
-            component.wos = [];
           } else if (component.selectedGraphic.geometry.type == "polygon") {
             component.latitude = ( < esri.Polygon > component.selectedGraphic.geometry).centroid.latitude;
             component.longitude = ( < esri.Polygon > component.selectedGraphic.geometry).centroid.longitude;
@@ -256,10 +266,8 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
             component.polylineLength = null;
             // this sets area property
             component.getAreaOfPolygons(( < any > component.selectedGraphic.geometry).rings);
-            component.wos = [];
           }
           //console.log((<any>component.selectedGraphic.symbol).color.toHex());
-
         } else {
           component.selectedGraphic = null;
           component.latitude = null;
@@ -267,8 +275,8 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
           component.polylineLength = null;
           component.area = null;
           component.type = null;
-          component.wos = [];
         }
+        //component.wos = [];
       });
 
     });
@@ -276,7 +284,6 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
 
   //draw a point/polyline/polygon/delete a graphic from view
   drawGrahic(event) {
-    let component = this;
     let buttonId = event.srcElement.id;
 
     switch (buttonId) {
@@ -301,8 +308,8 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
       case "editButton":
         {
 
-          if (component.selectedGraphic != null) {
-            component.sketchViewModel.update(component.selectedGraphic);
+          if (this.selectedGraphic != null) {
+            this.sketchViewModel.update(this.selectedGraphic);
           } else {
             alert("Choose a graphic first!");
           }
@@ -343,7 +350,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         }
       default:
         {
-          component.wos = [];
+          //component.wos = [];
           break;
         }
     }
@@ -358,7 +365,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
     component.mapView.goTo({
       target: component.mapView.center,
     });
-    component.wos = [];
+    //component.wos = [];
 
   }
 

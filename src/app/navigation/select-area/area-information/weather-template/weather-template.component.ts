@@ -27,4 +27,8 @@ export class WeatherTemplateComponent implements OnInit {
     this.areaInformationService.forecasts.next(true);
   }
 
+  discardForecast() {
+    this.areaInformationService.forecasts.next(false);
+  }
+
 }

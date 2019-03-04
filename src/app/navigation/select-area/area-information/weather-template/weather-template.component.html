@@ -1,4 +1,4 @@
-<div class="card" style="border:none !important">
+<div class="card mb-3" style="border:none !important">
     <div class="card-body">
         <div class="row">
             <div class="col-12 col-sm-4 col-lg-12 bg-info"><img class="img-responsive" [src]="imageUrl" [alt]="imageAlt">
@@ -21,7 +21,8 @@
             <p class="" *ngIf="wo?.pressure">The atmospheric pressure is <span class="font-weight-bold preety-text ">{{ wo.pressure }} hPa</span></p>
             <p class="" *ngIf="wo?.humidity">The percentage of humidity is <span class="font-weight-bold preety-text ">{{ wo.humidity }}%</span></p>
         </div>
-        <button type="button" (click)="getForecast()" class="btn btn-info float-right">Get forecast</button>
+        <button type="button" (click)="getForecast()" class="btn btn-sm btn-info float-right m-1">Get forecast</button>
+        <button type="button" (click)="discardForecast()" class="btn btn-sm btn-danger float-right m-1">Discard forecast</button>
     </div>
 </div>
 
