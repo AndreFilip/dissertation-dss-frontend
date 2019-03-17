@@ -12,6 +12,7 @@ import { Soil } from '../../soil.model'
   styleUrls: ['./select-area2.component.css']
 })
 export class SelectArea2Component implements OnInit {
+  errormsg = null;
   private myModel: any = {
     latitude: undefined, 
     longitude: undefined,
@@ -67,7 +68,7 @@ export class SelectArea2Component implements OnInit {
         // CLYPPT clay
         this.myModel.clay = properties.CLYPPT.M.sl2;
       } else {
-        
+        this.errormsg = !null;
       }
     }, (error) => {      
       console.log(error);
