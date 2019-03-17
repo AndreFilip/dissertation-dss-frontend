@@ -1,6 +1,8 @@
-<p class="jumbotron py-2 mb-1"><span [innerHTML]="type=='point' ? 'Your point coordinates are:' : 'Your polygon\'s centroid coordinates are:'"></span><br>
+<div class="jumbotron py-2 mb-1"><span [innerHTML]="type=='point' ? 'Your point coordinates are:' : 'Your polygon\'s centroid coordinates are:'"></span><br>
   <span class="preety-text font-weight-bold"> longitude <span class="font-weight-normal" style="color:initial">=</span>
-    {{ longitude }} <br>latitute <span class="font-weight-normal" style="color:black">=</span> {{ latitude }} </span></p>
+    {{ longitude }} <br>latitute <span class="font-weight-normal" style="color:black">=</span> {{ latitude }} </span><br>
+  <button class="btn btn-success btn-sm m-2" type="button" (click)="goToSoilData()">Get Soil Data</button>
+</div>
 <div *ngIf="wo" class="jumbotron py-2 mb-1">
   <h5 class="mb-0">Information about your region, {{ wo.region}}:</h5>
   <small class="">(The time of the calculation was {{ wo.dt * 1000 | date:'EEEE, dd/MM/yyyy, HH:mm z' }})</small>

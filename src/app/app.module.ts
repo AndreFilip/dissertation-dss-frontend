@@ -4,6 +4,8 @@ import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './/app-routing.module';
 import { JsonpModule } from '@angular/http';
+import { FormsModule }   from '@angular/forms';
+import { CustomFormsModule } from 'ngx-custom-validators';
 
 import { AppComponent } from './app.component';
 import { NavigationComponent } from './navigation/navigation.component';
@@ -17,6 +19,7 @@ import { WeatherTemplateForecastComponent } from './navigation/select-area/area-
 
 import { PointserviceService } from './pointservice.service';
 import { AreaInformationService } from './navigation/select-area/area-information/area-information.service';
+import { SelectArea2Component } from './navigation/select-area2/select-area2.component';
 
 
 @NgModule({
@@ -29,14 +32,17 @@ import { AreaInformationService } from './navigation/select-area/area-informatio
     PolylineInformationComponent,
     PolygonInformationComponent,
     WeatherTemplateComponent,
-    WeatherTemplateForecastComponent
+    WeatherTemplateForecastComponent,
+    SelectArea2Component
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     JsonpModule,
-    NgbModule
+    NgbModule,
+    FormsModule,
+    CustomFormsModule
   ],
   providers: [
     PointserviceService,

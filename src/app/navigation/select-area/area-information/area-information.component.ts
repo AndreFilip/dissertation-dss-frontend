@@ -4,6 +4,8 @@ import {
   Input
 } from '@angular/core';
 
+import {Router} from "@angular/router"
+
 import {
   AreaInformationService
 } from './area-information.service';
@@ -24,12 +26,16 @@ export class AreaInformationComponent implements OnInit {
   private errors = [];
   private wo: WeatherObject;
 
-  constructor(private areaInformationService: AreaInformationService) {}
+  constructor(private areaInformationService: AreaInformationService, private router: Router) {}
 
   ngOnInit() {
     this.initializeWeatherData(this.latitude, this.longitude);    
     this.latitude = this.roundTo2Decimals(this.latitude).toString();
     this.longitude = this.roundTo2Decimals(this.longitude).toString();    
+  }
+
+  goToSoilData () {
+    this.router.navigate(['/select-area-2', {lat: this.latitude, long: this.longitude}]);
   }
 
   initializeWeatherData(lat, lon) {

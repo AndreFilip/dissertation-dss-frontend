@@ -79,8 +79,8 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.forecastSubscription.unsubscribe();
-  }
+    this.forecastSubscription.unsubscribe();   
+  } 
 
   async initializeMap() {
     let component = this;
@@ -276,7 +276,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
           component.area = null;
           component.type = null;
         }
-        //component.wos = [];
+        component.wos = [];
       });
 
     });
