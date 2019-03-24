@@ -1,0 +1,54 @@
+<div class="box-shadow row">
+  <div class="col-12 mb-4 box-shadow">
+    <div class="row">
+      <img [src]="urlSoilTexture" width="100%" height="75px" class="col-3 my-auto" />
+      <div class="col-9 d-flex justify-content-between">
+        <div class="">
+          <h5>General type of soil</h5>
+          <p [innerText]="soilDataResults?.typeOfSoil"></p>
+        </div>
+        <div class="">
+          <h5>Texture class(es)</h5>
+          <p [innerText]="class" *ngFor="let class of soilDataResults?.soilTextureClassList"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 mb-4 box-shadow">
+    <div class="row">
+      <img [src]="urlbulk" width="100%" height="75px" class="col-3  my-auto" />
+      <div class="col-9">
+        <h5>Bulk Density Result</h5>
+        <p [innerText]="soilDataResults?.calculateBulkResult"></p>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 mb-4 box-shadow">
+    <div class="row">
+      <img [src]="urlCarbon" width="100%" height="75px" class="col-3  my-auto" />
+      <div class="col-9">
+        <h5>Soil Organic Carbon Result</h5>
+        <p [innerText]="soilDataResults?.carbonResult"></p>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 mb-4 box-shadow">
+    <div class="row">
+      <img [src]="urlCec" width="100%" height="75px" class="col-3  my-auto" />
+      <div class="col-9">
+        <h5>Cation Exchange Capacity Result</h5>
+        <p [innerText]="soilDataResults?.cationResult"></p>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 mb-4 box-shadow">
+    <div class="row">
+      <img [src]="urlPh" width="100%" height="75px" class="col-3  my-auto" />
+      <div class="col-9">
+        <h5>Ph Result</h5>
+        <p [innerText]="soilDataResults?.phResult"></p>
+      </div>
+    </div>
+  </div>
+
+</div>

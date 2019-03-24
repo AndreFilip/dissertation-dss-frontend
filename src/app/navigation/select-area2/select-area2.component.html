@@ -1,84 +1,136 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-6 mt-2">
-            <form class="" #form="ngForm" (ngSubmit)="getSoilResults()" >
-                <h3>Input your data (5cm depth)</h3>
-                <ngb-alert class="" type="info" (close)="errormsg = null" *ngIf="errormsg">The coordinates indicate no soil.</ngb-alert>
+            <form class="" #form="ngForm" (ngSubmit)="getSoilResults()">
+                <h3 class="jumbotron py-3 mb-1">Input your soil data <small>(avg. 5cm depth)</small></h3>
+                <ngb-alert class="" type="info" (close)="errormsg = null" *ngIf="errormsg" [innerText]="errormsg">
+                </ngb-alert>
                 <div class="form-row">
                     <div class="form-group col-sm-6">
                         <label for="lat">Latitude</label>
-                        <input type="number" class="form-control mb-1" id="lat" placeholder="latitude" name="latitude" [(ngModel)]="myModel.latitude" #latitude="ngModel" required min="-90" max="90">
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="latitude.errors?.min" >Must be greater than {{ latitude.errors?.min.value }}.</p>
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="latitude.errors?.max" >Must be less than {{ latitude.errors?.max.value }}.</p>
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="latitude.errors?.required&&latitude.dirty" >Required.</p>
+                        <input type="number" class="form-control mb-1" id="lat" placeholder="latitude" name="latitude"
+                            [(ngModel)]="myModel.latitude" #latitude="ngModel" required min="-90" max="90">
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="latitude.errors?.min">Must be greater than
+                            {{ latitude.errors?.min.value }}.</p>
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="latitude.errors?.max">Must be less than
+                            {{ latitude.errors?.max.value }}.</p>
+                        <p class="alert alert-danger p-1" role="alert"
+                            *ngIf="latitude.errors?.required&&latitude.dirty">Required.</p>
                     </div>
                     <div class="form-group col-sm-6">
                         <label for="lon">Longitude</label>
-                        <input type="number" class="form-control mb-1" id="lon" placeholder="longitude" name="longitude" [(ngModel)]="myModel.longitude" #longitude="ngModel" required min="-180" max="180">
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="longitude.errors?.min" >Must be greater than {{ longitude.errors?.min.value }}.</p>
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="longitude.errors?.max" >Must be less than {{ longitude.errors?.max.value }}.</p>
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="longitude.errors?.required&&longitude.dirty" >Required.</p>
+                        <input type="number" class="form-control mb-1" id="lon" placeholder="longitude" name="longitude"
+                            [(ngModel)]="myModel.longitude" #longitude="ngModel" required min="-180" max="180">
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="longitude.errors?.min">Must be greater
+                            than {{ longitude.errors?.min.value }}.</p>
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="longitude.errors?.max">Must be less than
+                            {{ longitude.errors?.max.value }}.</p>
+                        <p class="alert alert-danger p-1" role="alert"
+                            *ngIf="longitude.errors?.required&&longitude.dirty">Required.</p>
                     </div>
                 </div>
-                <div class="form-row">                    
+                <div class="form-row">
                     <div class="form-group col-sm-6">
                         <!-- ORCDRC  -->
-                        <label for="carbon">Soil organic carbon content (g/kg)</label>
-                        <input type="number" class="form-control mb-1" id="carbon" placeholder="Carbon content" name="carbon" [(ngModel)]="myModel.carbon" required #carbon="ngModel" min="0">
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="carbon.errors?.required&&carbon.dirty" >Required.</p>
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="carbon.errors?.min" >Must be greater than {{ carbon.errors?.min.value }}.</p>
+                        <label for="carbon">Soil Organic Carbon (SOC) content (g/kg)</label>
+                        <input type="number" class="form-control mb-1" id="carbon" placeholder="Carbon content"
+                            name="carbon" [(ngModel)]="myModel.carbon" required #carbon="ngModel" min="0">
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="carbon.errors?.required&&carbon.dirty">
+                            Required.</p>
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="carbon.errors?.min">Must be greater than
+                            {{ carbon.errors?.min.value }}.</p>
                     </div>
                     <div class="form-group col-sm-6">
                         <!-- BLDFIE  -->
-                        <label for="bulk">Bulk density (fine earth) kg/m<sup>3</sup></label>
-                        <input type="number" class="form-control mb-1" id="bulk" placeholder="Bulk density" name="bulk" [(ngModel)]="myModel.bulk" required #bulk="ngModel" min="0">
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="bulk.errors?.required&&bulk.dirty">Required.</p>
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="bulk.errors?.min" >Must be greater than {{ bulk.errors?.min.value }}.</p>
+                        <label for="bulk">Bulk density (fine earth) g/cm<sup>3</sup></label>
+                        <input type="number" class="form-control mb-1" id="bulk" placeholder="Bulk density" name="bulk"
+                            [(ngModel)]="myModel.bulk" required #bulk="ngModel" min="0">
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="bulk.errors?.required&&bulk.dirty">
+                            Required.</p>
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="bulk.errors?.min">Must be greater than
+                            {{ bulk.errors?.min.value }}.</p>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group col-sm-6">
                         <!-- PHIHOX -->
-                        <label for="ph">pH Index in water solution</label>
-                        <input type="number" class="form-control mb-1" id="ph" placeholder="pH Index" name="ph" [(ngModel)]="myModel.ph" required min="0" max="14" #ph="ngModel" >
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="ph.errors?.min" >Must be greater than {{ ph.errors?.min.value }}.</p>
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="ph.errors?.max" >Must be less than {{ ph.errors?.max.value }}.</p>
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="ph.errors?.required&&ph.dirty" >Required.</p>
+                        <label for="ph">PH Index in water solution</label>
+                        <input type="number" class="form-control mb-1" id="ph" placeholder="PH Index" name="ph"
+                            [(ngModel)]="myModel.ph" required min="0" max="14" #ph="ngModel">
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="ph.errors?.min">Must be greater than
+                            {{ ph.errors?.min.value }}.</p>
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="ph.errors?.max">Must be less than
+                            {{ ph.errors?.max.value }}.</p>
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="ph.errors?.required&&ph.dirty">Required.
+                        </p>
                     </div>
                     <div class="form-group col-sm-6">
                         <!-- CECSOL -->
-                        <label for="cation">Cation Exchange Capacity <abbr title="Centimoles of charge per kilogram">(cmolc/kg)</abbr></label>
-                        <input type="number" class="form-control mb-1" id="cation" placeholder="Cation Exchange Capacity" name="cation" [(ngModel)]="myModel.cation" required #cation="ngModel" min="0">
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="cation.errors?.required&&cation.dirty" >Required.</p>
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="cation.errors?.min" >Must be greater than {{ cation.errors?.min.value }}.</p>
+                        <label for="cation"><abbr title="CEC">Cation Exchange Capacity</abbr><abbr
+                                title="Centimoles of charge per kilogram">(cmolc/kg)</abbr></label>
+                        <input type="number" class="form-control mb-1" id="cation"
+                            placeholder="Cation Exchange Capacity" name="cation" [(ngModel)]="myModel.cation" required
+                            #cation="ngModel" min="0">
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="cation.errors?.required&&cation.dirty">
+                            Required.</p>
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="cation.errors?.min">Must be greater than
+                            {{ cation.errors?.min.value }}.</p>
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group col-sm-6">
-                        <!-- SLTPPT -->
-                        <label for="silt">Weight percentage of <abbr title="Particles with diameter of 0.0002–0.05 mm">silt particles</abbr></label>
-                        <input type="number" class="form-control mb-1" id="silt" placeholder="Silt particles" name="silt" [(ngModel)]="myModel.silt" required min="0" max="100" #silt="ngModel">
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="silt.errors?.min" >Must be greater than {{ silt.errors?.min.value }}.</p>
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="silt.errors?.max" >Must be less than {{ silt.errors?.max.value }}.</p>
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="silt.errors?.required&&silt.dirty" >Required.</p>
+                    <div class="form-group col-sm-4">
+                        <!-- SNDPPT -->
+                        <label for="sand">Weight percentage (%) of <abbr
+                                title="Particles with diameter of 0.05-2 mm">sand particles</abbr></label>
+                        <input type="number" class="form-control mb-1" id="sand" placeholder="Sand particles"
+                            name="sand" [(ngModel)]="myModel.sand" required min="0" max="100" #sand="ngModel">
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="sand.errors?.min">Must be greater than
+                            {{ sand.errors?.min.value }}.</p>
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="sand.errors?.max">Must be less than
+                            {{ sand.errors?.max.value }}.</p>
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="sand.errors?.required&&sand.dirty">
+                            Required.</p>
                     </div>
-                    <div class="form-group col-sm-6">
+                    <div class="form-group col-sm-4">
+                        <!-- SLTPPT -->
+                        <label for="silt">Weight percentage (%) of <abbr
+                                title="Particles with diameter of 0.0002–0.05 mm">silt particles</abbr></label>
+                        <input type="number" class="form-control mb-1" id="silt" placeholder="Silt particles"
+                            name="silt" [(ngModel)]="myModel.silt" required min="0" max="100" #silt="ngModel">
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="silt.errors?.min">Must be greater than
+                            {{ silt.errors?.min.value }}.</p>
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="silt.errors?.max">Must be less than
+                            {{ silt.errors?.max.value }}.</p>
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="silt.errors?.required&&silt.dirty">
+                            Required.</p>
+                    </div>
+                    <div class="form-group col-sm-4">
                         <!-- CLYPPT -->
-                        <label for="clay">Weight percentage of <abbr title="Particles with diameter of &#60; 0.0002 mm">clay particles</abbr></label>
-                        <input type="number" class="form-control mb-1" id="clay" placeholder="Clay particles" name="clay" [(ngModel)]="myModel.clay" required min="0" max="100" #clay="ngModel">
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="clay.errors?.min" >Must be greater than {{ clay.errors?.min.value }}.</p>
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="clay.errors?.max" >Must be less than {{ clay.errors?.max.value }}.</p>
-                        <p class="alert alert-danger p-1" role="alert" *ngIf="clay.errors?.required&&clay.dirty" >Required.</p>
+                        <label for="clay">Weight percentage (%) of <abbr
+                                title="Particles with diameter of &#60; 0.0002 mm">clay particles</abbr></label>
+                        <input type="number" class="form-control mb-1" id="clay" placeholder="Clay particles"
+                            name="clay" [(ngModel)]="myModel.clay" required min="0" max="100" #clay="ngModel">
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="clay.errors?.min">Must be greater than
+                            {{ clay.errors?.min.value }}.</p>
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="clay.errors?.max">Must be less than
+                            {{ clay.errors?.max.value }}.</p>
+                        <p class="alert alert-danger p-1" role="alert" *ngIf="clay.errors?.required&&clay.dirty">
+                            Required.</p>
                     </div>
                 </div>
-                <button class="btn btn-primary btn-sm float-right ml-2" type="submit" [disabled]="form.invalid">Get Results</button>
-                <button class="btn btn-danger btn-sm float-right ml-2" type="button" (click)="logForm(form)">log ngform</button>
-                <button class="btn btn-success btn-sm float-right" type="button" [disabled]="longitude.invalid || latitude.invalid" [hidden]="form.valid" (click)="getSoilData()">Get Soil Data</button>
+                <button class="btn btn-primary btn-sm float-right ml-2" type="submit" [disabled]="form.invalid">Evaluate
+                    Data</button>
+                <button class="btn btn-warning btn-sm float-right ml-2" type="button" (click)="logForm(form)">log
+                    ngform</button>
+                <button class="btn btn-danger btn-sm float-right ml-2" type="button" (click)="soilDataResults = null">Close Evaluation</button>
+                <button class="btn btn-success btn-sm float-right" type="button"
+                    [disabled]="longitude.invalid || latitude.invalid" [hidden]="form.valid" (click)="getSoilData()">Get
+                    Soil Data</button>
                 <!--  -->
             </form>
         </div>
-        <div class="col-md-6 mt-2">
-            <div></div>            
+        <div class="col-md-6 mt-4">
+            <app-soil-data-results *ngIf="soilDataResults" [soilDataResults]="soilDataResults"></app-soil-data-results>
         </div>
     </div>
 </div>

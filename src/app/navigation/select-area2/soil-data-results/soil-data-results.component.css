@@ -1,0 +1,16 @@
+.box-shadow {
+    -webkit-box-shadow: 0px 0px 25px 4px rgba(23,162,184,0.61);
+    -moz-box-shadow: 0px 0px 25px 4px rgba(23,162,184,0.61);
+    box-shadow: 0px 0px 25px 4px rgba(23,162,184,0.61);
+}
+
+h5 {
+    font-family: cursive;
+}
+
+p , ul{
+    font-family: Times, Times New Roman, Georgia, serif;
+    text-align: justify;
+    word-wrap: break-word;
+}
+

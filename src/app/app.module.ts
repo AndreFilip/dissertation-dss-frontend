@@ -20,6 +20,7 @@ import { WeatherTemplateForecastComponent } from './navigation/select-area/area-
 import { PointserviceService } from './pointservice.service';
 import { AreaInformationService } from './navigation/select-area/area-information/area-information.service';
 import { SelectArea2Component } from './navigation/select-area2/select-area2.component';
+import { SoilDataResultsComponent } from './navigation/select-area2/soil-data-results/soil-data-results.component';
 
 
 @NgModule({
@@ -33,7 +34,8 @@ import { SelectArea2Component } from './navigation/select-area2/select-area2.com
     PolygonInformationComponent,
     WeatherTemplateComponent,
     WeatherTemplateForecastComponent,
-    SelectArea2Component
+    SelectArea2Component,
+    SoilDataResultsComponent
   ],
   imports: [
     BrowserModule,

@@ -374,7 +374,6 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
     let component = this;
 
     let graphicsCollection = component.tempGraphicsLayer.graphics;
-
     if (graphicsCollection.length > 0) {
       let graphicsToSave: Array < any > = [];
       let graphicsToDelete: Array < any > = [];
@@ -424,8 +423,8 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
           graphicsToSave.push(graphicPolygon);
         }
       }
-      graphicsCollection.removeMany(graphicsToDelete);
-
+      // graphicsCollection.removeMany(graphicsToDelete);
+      console.log(JSON.stringify(graphicsToSave));
       // component.pointserviceService.saveGraphics(graphicsToSave).subscribe(
       // results => { 
       // graphicsCollection.removeMany(graphicsToDelete);

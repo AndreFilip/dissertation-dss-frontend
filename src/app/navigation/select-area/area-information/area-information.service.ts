@@ -21,7 +21,7 @@ export class AreaInformationService {
   private weatherDataURL = 'http://api.openweathermap.org/data/2.5/weather';
   private weatherForecastDataURL = 'http://api.openweathermap.org/data/2.5/forecast';
   private soilDataURL = 'https://rest.soilgrids.org/query?';
-  private mySoilResultsURL = '';
+  private mySoilResultsURL = 'http://localhost:8080/soildata';
 
 
   constructor(private http: HttpClient, private jsonp: Jsonp) {}
@@ -43,8 +43,7 @@ export class AreaInformationService {
   }  
 
   getSoilResults(soil: Soil) {
-    // console.log(soil);    
-    // return this.http.post<any>(this.mySoilResultsURL, soil, httpOptions); 
+    return this.http.post<Soil>(this.mySoilResultsURL, soil, httpOptions); 
   }
  
 }
