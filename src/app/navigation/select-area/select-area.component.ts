@@ -1,31 +1,18 @@
-import {
-  Component,
-  OnInit,
-  ElementRef,
-  ViewChild,
-  OnDestroy
-} from '@angular/core';
-import {
-  loadModules
-} from 'esri-loader';
-import esri = __esri;
-
-import {
-  Color
-} from './../../color.model';
-import {
-  Point
-} from './../../point.model';
-
-import {
-  PointserviceService
-} from './../../pointservice.service';
-import {
-  AreaInformationService
-} from './area-information/area-information.service';
-
-import { Subscription } from 'rxjs';
+import {  Component,  OnInit,  ElementRef,  ViewChild,  OnDestroy} from '@angular/core';
 import { Router } from '@angular/router';
+
+import esri = __esri;
+import { loadModules} from 'esri-loader';
+
+import {  Color} from './../../color.model';
+import {  Graphic } from '../../graphic.model';
+
+import {  GraphicsService} from '../../graphics.service';
+import {  AreaInformationService} from './area-information/area-information.service';
+
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ModalComponent } from '../../components/modal/modal.component';
+
 
 @Component({
   selector: 'app-select-area',
@@ -47,22 +34,30 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
   private longitude;
   private polylineLength;
   private type;
-  private forecastSubscription: Subscription;
-
+  
   private wos = [];
 
   @ViewChild('mapViewNode') private mapViewEl: ElementRef;
   @ViewChild('streetsLayer') private streetsLayerEl: ElementRef;
   @ViewChild('fire') private fireEl: ElementRef;
 
-  constructor(private pointserviceService: PointserviceService, private areaInformationService: AreaInformationService, private router: Router) {}
+  constructor(private graphicsService: GraphicsService, private areaInformationService: AreaInformationService, private router: Router,
+    private modalService: NgbModal) {}
 
   private herokuhost: string = "https://sleepy-brook-85346.herokuapp.com";
   private localhost: string = "localhost:8080";
 
   ngOnInit() {
     this.initializeMap();
-    this.forecastSubscription = this.areaInformationService.forecasts.subscribe( (forecasts) => { 
+    this.initializeWeatherSubscriber();
+  }
+
+  ngOnDestroy() {
+  } 
+
+  //forecasted weather
+  initializeWeatherSubscriber() {
+    this.areaInformationService.forecasts.subscribe( (forecasts) => { 
       if (forecasts && this.latitude && this.longitude && this.wos.length == 0) {
         this.areaInformationService.getWeatherForecastData(this.latitude, this.longitude).subscribe( (data) => {
           //console.log(data);
@@ -77,10 +72,6 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
       }
     });
   }
-
-  ngOnDestroy() {
-    this.forecastSubscription.unsubscribe();   
-  } 
 
   async initializeMap() {
     let component = this;
@@ -105,8 +96,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         opacity: 0.7,
         id: "streets"
       });
-      this.tempGraphicsLayer = new GraphicsLayer();
-
+      component.tempGraphicsLayer = new GraphicsLayer();
       var kmllayer = new KMLLayer({
         url: component.herokuhost + "/downloadFile/KML_Samples.kml"
         // url: this.host + "/downloadFile/lines.kml"
@@ -180,7 +170,8 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
               attributes: {
                 'title': "title",
                 'comments': "comments",
-                'idReturned': undefined
+                'id': undefined,
+                'colorId': undefined
               },
               popupTemplate: {
                 title: "<p class='font-weight-bold'>{title}</p><hr>",
@@ -207,7 +198,6 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
             component.selectedGraphic = null;
             component.latitude = null;
             component.longitude = null;
-            //component.wos = [];
 
             component.tempGraphicsLayer.add(graphic);
           } catch (error) {
@@ -218,16 +208,12 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
             component.selectedGraphic = null;
             component.latitude = null;
             component.longitude = null;
-            //component.wos = [];
           }
 
         });
         component.sketchViewModel.on("update-complete", component.updateGraphic);
         component.sketchViewModel.on("update-cancel", component.updateGraphic);
-
         component.setUpClickHandler();
-
-
       });
 
     } catch (error) {
@@ -243,11 +229,12 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
 
       component.mapView.hitTest(event).then(function (response) {
         let results = response.results;
+        // Check if graphic found
         if (results.length && results[results.length - 1].graphic) {
           component.selectedGraphic = results[results.length - 1].graphic;
 
           if (component.selectedGraphic.geometry.type == "polyline") {
-            // this sets polylineLength property
+            // this sets polyline's length property
             component.getLengthOfPolyline(( < any > results[results.length - 1].graphic.geometry).paths);
             component.latitude = null;
             component.longitude = null;
@@ -260,14 +247,14 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
             component.polylineLength = null;
             component.area = null;
           } else if (component.selectedGraphic.geometry.type == "polygon") {
+            // this sets polygons' area property
+            component.getAreaOfPolygons(( < any > component.selectedGraphic.geometry).rings);
             component.latitude = ( < esri.Polygon > component.selectedGraphic.geometry).centroid.latitude;
             component.longitude = ( < esri.Polygon > component.selectedGraphic.geometry).centroid.longitude;
             component.type = ( < any > component.selectedGraphic).geometry.type;
-            component.polylineLength = null;
-            // this sets area property
-            component.getAreaOfPolygons(( < any > component.selectedGraphic.geometry).rings);
+            component.polylineLength = null;            
           }
-          //console.log((<any>component.selectedGraphic.symbol).color.toHex());
+        // No graphic found. Make all null.
         } else {
           component.selectedGraphic = null;
           component.latitude = null;
@@ -276,13 +263,14 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
           component.area = null;
           component.type = null;
         }
+        // Disappear weather forcasted if exists
         component.wos = [];
       });
 
     });
   }
 
-  //draw a point/polyline/polygon/delete a graphic from view
+  // Draw a point/polyline/polygon or edit/delete a graphic
   drawGrahic(event) {
     let buttonId = event.srcElement.id;
 
@@ -328,7 +316,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
                 });
                 this.selectedGraphic == null;
               } else {
-                this.pointserviceService.deleteGraphic(this.selectedGraphic.attributes.idReturned).subscribe(results => {
+                this.graphicsService.deleteGraphic(this.selectedGraphic.attributes.idReturned).subscribe(results => {
                     console.log("Successfully deleted the graphic.");
                     this.tempGraphicsLayer.graphics.remove(this.selectedGraphic);
                     this.selectedGraphic == null;
@@ -350,7 +338,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         }
       default:
         {
-          //component.wos = [];
+          // just in case
           break;
         }
     }
@@ -365,106 +353,115 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
     component.mapView.goTo({
       target: component.mapView.center,
     });
-    //component.wos = [];
-
   }
-
 
   saveGraphics() {
     let component = this;
-
     let graphicsCollection = component.tempGraphicsLayer.graphics;
+    console.log(graphicsCollection);
     if (graphicsCollection.length > 0) {
-      let graphicsToSave: Array < any > = [];
-      let graphicsToDelete: Array < any > = [];
-
+      let graphicsToSave: Array <any> = [];
       for (let graphic of graphicsCollection.toArray()) {
-        if (graphic.geometry.type === "point") {
-          graphicsToDelete.push(graphic);
-          let comments = graphic.attributes.comments;
-          let title = graphic.attributes.title;
-          let idReturned = graphic.attributes.idReturned;
-
-          let latitude = ( < esri.Point > graphic.geometry).latitude;
-          let longitude = ( < esri.Point > graphic.geometry).longitude;
-          let type = graphic.geometry.type;
-          let paths = null;
-          let color = new Color(( < esri.SimpleMarkerSymbol > graphic.symbol).color.r, ( < esri.SimpleMarkerSymbol > graphic.symbol).color.b, ( < esri.SimpleMarkerSymbol > graphic.symbol).color.g);
-          let graphicPoint = new Point(title, comments, latitude, longitude, color, paths, type, idReturned);
-          graphicsToSave.push(graphicPoint);
-        }
-
-        if (graphic.geometry.type === "polyline") {
-          graphicsToDelete.push(graphic);
-          let comments = graphic.attributes.comments;
-          let title = graphic.attributes.title;
-          let idReturned = graphic.attributes.idReturned;
-          let latitude = null;
-          let longitude = null;
-          let type = graphic.geometry.type;
-          let paths = (( < esri.Polyline > graphic.geometry).paths).toString();
-          let color = new Color(( < esri.SimpleLineSymbol > graphic.symbol).color.r, ( < esri.SimpleLineSymbol > graphic.symbol).color.b, ( < esri.SimpleLineSymbol > graphic.symbol).color.g);
-          let graphicPolyline = new Point(title, comments, latitude, longitude, color, paths, type, idReturned);
-          graphicsToSave.push(graphicPolyline);
-        }
-
-        if (graphic.geometry.type === "polygon") {
-          graphicsToDelete.push(graphic);
-          let comments = graphic.attributes.comments;
-          let title = graphic.attributes.title;
-          let idReturned = graphic.attributes.idReturned;
-          // maybe i should save centroid ?
-          let latitude = null;
-          let longitude = null;
-          let type = graphic.geometry.type;
-          let paths = (( < esri.Polygon > graphic.geometry).rings).toString();
-          let color = new Color(( < esri.SimpleFillSymbol > graphic.symbol).color.r, ( < esri.SimpleFillSymbol > graphic.symbol).color.b, ( < esri.SimpleFillSymbol > graphic.symbol).color.g);
-          let graphicPolygon = new Point(title, comments, latitude, longitude, color, paths, type, idReturned);
-          graphicsToSave.push(graphicPolygon);
-        }
+        let graphicToSave;
+        switch (graphic.geometry.type) {
+          case "point":
+          graphicToSave = new Graphic(graphic.attributes.id, graphic.attributes.title, graphic.attributes.comments, (<any> graphic.geometry).latitude, 
+          (<any> graphic.geometry).longitude, new Color(graphic.attributes.colorId, (<any>graphic.symbol).color.r, (<any>graphic.symbol).color.b, 
+          (<any>graphic.symbol).color.g), null, graphic.geometry.type);
+          break;
+          case "polyline":
+          graphicToSave = new Graphic(graphic.attributes.id, graphic.attributes.title, graphic.attributes.comments, null, null, 
+          new Color(graphic.attributes.colorId, (<any>graphic.symbol).color.r, (<any>graphic.symbol).color.b,(<any>graphic.symbol).color.g), 
+          ((<any> graphic.geometry).paths).toString(), graphic.geometry.type);
+          break;
+          case "polygon":
+          graphicToSave = new Graphic(graphic.attributes.id, graphic.attributes.title, graphic.attributes.comments, (<any> graphic.geometry).centroid.latitude, 
+          (<any> graphic.geometry).centroid.longitude, new Color(graphic.attributes.colorId, (<any>graphic.symbol).color.r, (<any>graphic.symbol).color.b,(<any>graphic.symbol).color.g), 
+          ((<any> graphic.geometry).rings).toString(), graphic.geometry.type);
+          break;
+        }          
+       graphicsToSave.push(graphicToSave);       
       }
-      // graphicsCollection.removeMany(graphicsToDelete);
-      console.log(JSON.stringify(graphicsToSave));
-      // component.pointserviceService.saveGraphics(graphicsToSave).subscribe(
-      // results => { 
-      // graphicsCollection.removeMany(graphicsToDelete);
-      // // this.loadGraphics();        
-      // }, 
-      // error => {
-      // console.log("Error saveGraphics: ", error);
-      // }
-      // );
+      //console.log("graphicsToSave");
+
+//console.log(graphicsToSave);
+      component.graphicsService.saveGraphics(graphicsToSave).subscribe(
+        results => { 
+          console.log("saveGraphics successfully: ", results);
+          this.loadGraphicsNoModal();
+          this.openModal('Map was saved successfully!');
+        }, 
+        error => {
+          console.log("Error saveGraphics: ", error);    
+          this.openModal('Error! Map was not saved!');    
+        }
+      );
+    } else {
+      this.openModal('Draw graphics first!');    
     }
+
+  }
+  
+  openModal (message: string) {
+    let modalRef = this.modalService.open(ModalComponent);
+    modalRef.componentInstance.result = message; 
   }
 
 
   loadGraphics() {
-    // let component = this;
-    // let allGraphicsDesignedCurrently = component.tempGraphicsLayer.graphics;
-    // allGraphicsDesignedCurrently.forEach(element => {
-    //   // if (element.attributes.id == null) {
-    //     allGraphicsDesignedCurrently.remove(element);
-    //   // }
-    // });
+    let component = this;
 
-    // component.pointserviceService.getGraphics().subscribe(
-    //   results => {     
-    //   if (results.length > 0) {
-    //     for (let graphic of results) {
-    //       component.drawGraphicAfterLoading(graphic);
-    //     }        
-    //   }
-    //   component.mapView.goTo({
-    //     target: component.mapView.center ,
-    //   });
-    // }, 
-    // error => {
-    //   console.log("Error in loadGraphics(): ", error);
+    component.graphicsService.getGraphics().subscribe(
+      results => {     
+        if (results.length > 0) {
+          this.removeAllGraphicsFromMap();
 
-    // });
+          for (let graphic of results) {
+            component.drawGraphicAfterLoading(graphic);
+          }      
+          component.mapView.goTo({
+            target: component.mapView.center ,
+          });
+          this.openModal('Map was loaded successfully!'); 
+        } else {
+          this.openModal('No Map is saved in database!'); 
+        }
+      }, 
+      error => {
+        console.log("Error in loadGraphics(): ", error);
+        this.openModal('Error in loading graphics! Map was not loaded!');
+      });
   }
 
-  async drawGraphicAfterLoading(graphicFromServer) {
+  loadGraphicsNoModal() {
+    let component = this;
+    component.graphicsService.getGraphics().subscribe(
+      results => {     
+        if (results.length > 0) {
+          this.removeAllGraphicsFromMap();
+
+          for (let graphic of results) {
+            component.drawGraphicAfterLoading(graphic);
+          }      
+          component.mapView.goTo({
+            target: component.mapView.center ,
+          });
+        } else {
+        }
+      }, 
+      error => {
+        console.log("Error in loadGraphics(): ", error);
+        this.openModal('Error in loading map after saving!');
+      });
+  }
+
+  removeAllGraphicsFromMap() {
+    this.tempGraphicsLayer.graphics.removeAll();
+  }
+
+  async drawGraphicAfterLoading(graphicFromServer: Graphic) {
+    //console.log("graphicFromServer");
+    //console.log(graphicFromServer);
     let component = this;
 
     let [Graphic] = await loadModules([
@@ -474,6 +471,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
     if (graphicFromServer.type == "point") {
       let lat = graphicFromServer.latitude;
       let lon = graphicFromServer.longitude;
+      let colorId = graphicFromServer.color.id;
       let r = graphicFromServer.color.r;
       let g = graphicFromServer.color.g;
       let b = graphicFromServer.color.b;
@@ -497,11 +495,12 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         attributes: {
           title: graphicFromServer.title,
           comments: graphicFromServer.comments,
-          idReturned: graphicFromServer.id,
+          id: graphicFromServer.id,
+          colorId: colorId
         },
         popupTemplate: {
           title: "<p class='font-weight-bold'>{title}</p><hr>",
-          content: `{comments} <br> <hr>`
+          content: `<textarea maxlength="250" rows="4" cols="42" style="overflow:auto"> {comments} </textarea> <hr>`
         }
 
       });
@@ -509,6 +508,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
     }
 
     if (graphicFromServer.type == "polyline") {
+      let colorId = graphicFromServer.color.id;
       let r = graphicFromServer.color.r;
       let g = graphicFromServer.color.g;
       let b = graphicFromServer.color.b;
@@ -536,11 +536,12 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         attributes: {
           title: graphicFromServer.title,
           comments: graphicFromServer.comments,
-          idReturned: graphicFromServer.id,
+          id: graphicFromServer.id,
+          colorId: colorId
         },
         popupTemplate: {
           title: "<p class='font-weight-bold'>{title}</p><hr>",
-          content: `{comments} <br> <hr>`
+          content: `<textarea maxlength="250" rows="4" cols="42" style="overflow:auto"> {comments} </textarea> <hr>`
         }
 
       });
@@ -548,6 +549,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
     }
 
     if (graphicFromServer.type == "polygon") {
+      let colorId = graphicFromServer.color.id;
       let r = graphicFromServer.color.r;
       let g = graphicFromServer.color.g;
       let b = graphicFromServer.color.b;
@@ -574,11 +576,12 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         attributes: {
           title: graphicFromServer.title,
           comments: graphicFromServer.comments,
-          idReturned: graphicFromServer.id,
+          id: graphicFromServer.id,
+          colorId: colorId
         },
         popupTemplate: {
           title: "<p class='font-weight-bold'>{title}</p><hr>",
-          content: `{comments} <br> <hr>`
+          content: `<textarea maxlength="250" rows="4" cols="42" style="overflow:auto"> {comments} </textarea> <hr>`
         }
 
       });
@@ -589,21 +592,35 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
 
 
   deleteGraphics() {
-    let component = this;
+    this.graphicsService.mapExists().subscribe( (result) => {
+      console.log(result);
+      if (result.myresponse) {
+        let what = confirm("Are you sure you want to delete you map ?");
+        if (what) {
+          this.graphicsService.deleteGraphics().subscribe(
+            results => {      
+            console.log("Sucessful deleteGraphics()");
+            this.removeAllGraphicsFromMap();
+            this.openModal('Sucessfully deleted map!');
+          }, 
+          error => {
+            console.log("Error in deleteGraphics(): ", error);
+            this.openModal('Error in deleting map! Try again later!');
+          }
+          );
+        }  
+      } else {
+        this.openModal('No map found in database to delete!');
+      }
+      
+    }, (error) => {
+      this.openModal('An error occurred trying to delete the map. Please try again later.');
+    })
 
-    // component.pointserviceService.deleteGraphics().subscribe(
-    //   results => {      
-    //   console.log("Sucessful deleteGraphics()");
-    // }, 
-    // error => {
-    //   console.log("Error in deleteGraphics(): ", error);
-    // }
-    // );
   }
+  
 
-  async changeColor(value) {
-    // console.log(value);
-    
+  async changeColor(value) {    
     let component = this;
     var [Color] = await loadModules([
       'esri/Color'
@@ -630,9 +647,15 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
       });
       ( < esri.SimpleFillSymbol > component.selectedGraphic.symbol).color.a = 0.7;
     }
+    component.showSuccessColor();
+  }
 
-        //console.log((<any>component.selectedGraphic.symbol).color.toHex());
-
+  showSuccessColor() {
+    let succesColor = < HTMLElement > document.getElementById("succesColor");
+    succesColor.classList.remove("hide");
+    setTimeout(() => {
+      succesColor.classList.add("hide");
+    }, 3000);
   }
 
   changeTitle() {
@@ -684,15 +707,15 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
   // For converting 102100 to 4326 wkid: Eg. https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer/project?f=json&inSR=102100&outSR=4326&geometries={'geometryType':'esriGeometryPolyline','geometries':[{'paths':[[[2657353.3318215227,4829996.637395144], [2647353.3318215227,4829296.637395144]]]}]}
   getLengthOfPolyline(pathsArray) {
     let component = this;
-    let url = "https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer/project?inSR=102100&outSR=4326&geometries={'geometryType':'esriGeometryPolyline','geometries':[{'paths':[[";
+    let url = "http://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/Geometry/GeometryServer/project?inSR=102100&outSR=4326&geometries={'geometryType':'esriGeometryPolyline','geometries':[{'paths':[[";
     let result2 = [];
     pathsArray[0].forEach(element => {
       result2.push(element);
     });
     let result = pathsArray[0].join("],[");
-    result = url + "[" + result + "]]]}]}&f=json";
-    this.areaInformationService.getLengthOfPolyline(result).subscribe((response) => {
-      let paths = ( < any > response)._body.geometries[0].paths[0];
+    result = url + "[" + result + "]]]}]}&transformation=&transformForward=false&vertical=false&f=pjson";
+    this.areaInformationService.getLengthOfPolyline(encodeURI(result)).subscribe((response) => {
+      let paths = ( < any > response).geometries[0].paths[0];
       if (paths.length > 1) {
         let polylineLength2 = 0;
         for (let j = 1; j < paths.length; j++) {
@@ -717,14 +740,14 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
   getAreaOfPolygons(pathsArray) {
     let component = this;
     component.area = null;
-    let url = "https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer/project?inSR=102100&outSR=4326&geometries={'geometryType':'esriGeometryPolygon','geometries':[";
+    let url = "http://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/Geometry/GeometryServer/project?inSR=102100&outSR=4326&geometries={'geometryType':'esriGeometryPolygon','geometries':[";
 
     if (pathsArray.length == 1) {
       url += "{'rings':[[";
       let result = pathsArray[0].join("],[");
-      url += "[" + result + "]]]}]}&f=json";
-      component.areaInformationService.getLengthOfPolyline(url).subscribe((response) => {
-        let rings = ( < any > response)._body.geometries[0].rings[0];
+      url += "[" + result + "]]]}]}&transformation=&transformForward=false&vertical=false&f=pjson";
+      component.areaInformationService.getLengthOfPolyline(encodeURI(url)).subscribe((response) => {
+        let rings = (<any>response).geometries[0].rings[0];
         //console.log(rings);
 
         component.area = component.getAreaOfPolygon(rings);
@@ -744,9 +767,9 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
       });
       let lastcommaindex = url.lastIndexOf(",");
       url = url.slice(0, lastcommaindex);
-      url += "]}&f=json";
-      component.areaInformationService.getLengthOfPolyline(url).subscribe((response) => {
-        let geometries = ( < any > response)._body.geometries;
+      url += "]}&transformation=&transformForward=false&vertical=false&f=pjson";
+      component.areaInformationService.getLengthOfPolyline(encodeURI(url)).subscribe((response) => {
+        let geometries = ( < any > response).geometries;
         let area = null;
         //console.log(geometries);
 

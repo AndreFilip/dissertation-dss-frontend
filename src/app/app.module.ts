@@ -17,10 +17,11 @@ import { PolygonInformationComponent } from './navigation/select-area/polygon-in
 import { WeatherTemplateComponent } from './navigation/select-area/area-information/weather-template/weather-template.component';
 import { WeatherTemplateForecastComponent } from './navigation/select-area/area-information/weather-template-forecast/weather-template-forecast.component';
 
-import { PointserviceService } from './pointservice.service';
+import { GraphicsService } from './graphics.service';
 import { AreaInformationService } from './navigation/select-area/area-information/area-information.service';
 import { SelectArea2Component } from './navigation/select-area2/select-area2.component';
 import { SoilDataResultsComponent } from './navigation/select-area2/soil-data-results/soil-data-results.component';
+import { ModalComponent } from './components/modal/modal.component';
 
 
 @NgModule({
@@ -35,7 +36,8 @@ import { SoilDataResultsComponent } from './navigation/select-area2/soil-data-re
     WeatherTemplateComponent,
     WeatherTemplateForecastComponent,
     SelectArea2Component,
-    SoilDataResultsComponent
+    SoilDataResultsComponent,
+    ModalComponent
   ],
   imports: [
     BrowserModule,
@@ -47,8 +49,11 @@ import { SoilDataResultsComponent } from './navigation/select-area2/soil-data-re
     CustomFormsModule
   ],
   providers: [
-    PointserviceService,
+    GraphicsService,
     AreaInformationService
+  ],
+  entryComponents: [
+    ModalComponent    
   ],
   bootstrap: [AppComponent]
 })

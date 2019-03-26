@@ -22,7 +22,6 @@ export class SoilDataResultsComponent implements OnInit {
     this.urlCarbon = "../../../assets/carbon.png";
     this.urlCec = "../../../assets/cec.png";
     this.urlPh = "../../../assets/ph.png";
-    this.soilDataResults.soilTextureClassList = ["adsa", "asdsdas"];
   }
 
 }

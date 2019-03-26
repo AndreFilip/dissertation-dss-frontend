@@ -122,7 +122,7 @@
                     Data</button>
                 <button class="btn btn-warning btn-sm float-right ml-2" type="button" (click)="logForm(form)">log
                     ngform</button>
-                <button class="btn btn-danger btn-sm float-right ml-2" type="button" (click)="soilDataResults = null">Close Evaluation</button>
+                <button class="btn btn-danger btn-sm float-right ml-2" type="button" (click)="soilDataResults = null" *ngIf="soilDataResults">Close Evaluation</button>
                 <button class="btn btn-success btn-sm float-right" type="button"
                     [disabled]="longitude.invalid || latitude.invalid" [hidden]="form.valid" (click)="getSoilData()">Get
                     Soil Data</button>

@@ -34,7 +34,7 @@
       <hr>
       <section>
         <button class="btn btn-sm dropdown-toggle btn-secondary row" type="button" data-toggle="collapse" data-target="#areaTexts"
-          aria-expanded="false" aria-controls="areaTexts">Alter comments/title</button>
+          aria-expanded="false" aria-controls="areaTexts">Alter title/comments</button>
         <fieldset id="areaTexts" class="collapse">
           <label for="changeTitle" class="font-weight-bold row">Title:</label>
           <div class="row justify-content-between">
@@ -63,6 +63,7 @@
             <button class="btn btn-primary btn-sm col-6 ml-2 mt-2 mt-lg-0" type="button" title="" id="" (click)="changeColor(chooseColor2.value)">Save</button>
           </div>
         </div>
+        <p class="hide" style="color:green" id="succesColor">Color changed</p>
       </section>
      <section>    
         <!-- <button class="btn btn-primary btn-sm" type="button" (click)="getAirQualities()" *ngIf="latitude && longitude">Get Air</button>   -->

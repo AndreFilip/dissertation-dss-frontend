@@ -35,7 +35,7 @@ export class AreaInformationService {
   }
 
   getLengthOfPolyline(url: string) {
-    return this.jsonp.request(url + "&callback=JSONP_CALLBACK");
+    return this.http.get(url);
   }
 
   getSoilData(lat, lon, depths) {    
