@@ -15,7 +15,8 @@ export class WeatherTemplateForecastComponent implements OnInit, OnChanges {
   private imageAlt: string;
   private iconUrl = 'http://openweathermap.org/img/w/'; 
   private index: number;
-
+  private indexDescription: string;
+  
   constructor(private areaInformationService: AreaInformationService) { }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -55,13 +56,32 @@ export class WeatherTemplateForecastComponent implements OnInit, OnChanges {
       prcp: prcp,
       mth: mth
     };
-    console.log(data);
+    // console.log(data);
     this.areaInformationService.getFireIndex(data).subscribe((results) => {
       console.log(results);
-      this.index = this.roundTo2Decimals(results);     
+      this.index = this.roundTo2Decimals(results);
+      if (this.index != -1) {
+        this.decideIndexDescription(this.index);
+      }     
     }, error => {
       console.log("Error in getFireIndex(): ", error);
     });
+  }
+
+  decideIndexDescription(index: number) {
+    if (index >= 25) {
+      this.indexDescription = "(Extreme!)"
+    } else if (index >= 13) {
+      this.indexDescription = "(High!)"
+    } else if (index >= 6) {      
+      this.indexDescription = "(Moderate)"
+    } else if (index >= 2) {
+      this.indexDescription = "(Low)"
+    } else if (index >= 0) {
+      this.indexDescription = "(Very Low)"
+    } else {
+      this.indexDescription = ""
+    }
   }
 
   roundTo2Decimals(num) {

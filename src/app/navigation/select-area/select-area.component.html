@@ -62,7 +62,7 @@
       </div>     -->
       <div *ngIf="index&&index!=undefined" class="fireClass">
         <p *ngIf="index&&index!=-1" class="text-center font-weight-bold">Fire index: <span
-            class="fireIndex">{{ index }}</span></p>
+            class="fireIndex">{{ index }}</span> {{indexDescription}}</p>
         <p *ngIf="index&&index==-1" class="text-center">Fire index was not found for this region.</p>
       </div>
       <hr *ngIf="index">
