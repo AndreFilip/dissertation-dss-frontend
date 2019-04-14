@@ -18,6 +18,10 @@
             <p class="" *ngIf="wo?.snow && wo?.snow['3h']">The snow volume for the last 3 hours will be <span class="font-weight-bold preety-text ">{{ wo.snow['3h'] | number:'1.0-6' }} mm</span></p>
             <p class="" *ngIf="wo?.main?.pressure">The atmospheric pressure will be <span class="font-weight-bold preety-text ">{{ wo.main.pressure }} hPa</span></p>
             <p class="" *ngIf="wo?.main?.humidity">The percentage of humidity will be <span class="font-weight-bold preety-text ">{{ wo.main.humidity }}%</span></p>
+            <div class="fireClass">
+              <p *ngIf="isIndexAvailable" class="text-center font-weight-bold" >Fire index: <span class="fireIndex">{{ index }}</span></p>
+              <p *ngIf="!isIndexAvailable" class="text-center">Fire index was not found for this region.</p>
+            </div>        
         </div> 
     </div>
 </div>

@@ -14,15 +14,22 @@ const httpOptions = {
   providedIn: 'root'
 })
 export class AreaInformationService {
-  forecasts = new Subject<boolean>();
+  forecasts = new Subject<{forecasts:boolean, isIndexAvailable: boolean}>();
+  toggleForcastsBtn = new Subject<boolean>();
+  fireIndexObservable = new Subject<number>();
+
+
+  private DAY_IN_MILISECONDS = 24 * 60 * 60 * 1000;
 
   private myID = "&appid=fdf3690158d951e8c0031cb22966f666";
-  
+  private apixuID = "&appid=b296c4beb89f4875b05164715193103";
+
+     
   private weatherDataURL = 'http://api.openweathermap.org/data/2.5/weather';
   private weatherForecastDataURL = 'http://api.openweathermap.org/data/2.5/forecast';
   private soilDataURL = 'https://rest.soilgrids.org/query?';
   private mySoilResultsURL = 'http://localhost:8080/soildata';
-
+  private myFireDataResultsURL = 'http://localhost:8080/firedata'
 
   constructor(private http: HttpClient, private jsonp: Jsonp) {}
 
@@ -44,6 +51,11 @@ export class AreaInformationService {
 
   getSoilResults(soil: Soil) {
     return this.http.post<Soil>(this.mySoilResultsURL, soil, httpOptions); 
+  }
+
+  //let start = new Date().getTime() - this.DAY_IN_MILISECONDS;
+  getFireIndex(data: any) {
+    return this.http.post(this.myFireDataResultsURL, data ,httpOptions); 
   }
  
 }

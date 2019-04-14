@@ -25,6 +25,20 @@ div.scroll {
   padding: 10px;
 }
 
+.fireClass {
+  padding-top: 10px;
+  border-style: solid;
+  border-width: 3px;
+  border-radius: 5px;
+  border-color: black;
+  background: #dc3545;
+  color: white;
+}
+
+.fireIndex {
+  font-size: 120%;
+}
+
 .action-button {
   font-size: 16px;
   background-color: transparent;

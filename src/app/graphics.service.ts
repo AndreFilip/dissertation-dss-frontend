@@ -31,7 +31,7 @@ export class GraphicsService {
     return this.http.delete(this.basicUrl);
   }
 
-  deleteGraphic(id): Observable<any>  {
+  deleteGraphic(id:number): Observable<any>  {
     return this.http.delete(this.basicUrl + "/" + id);
   }
 

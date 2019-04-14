@@ -1,7 +1,10 @@
-<div class="jumbotron py-2 mb-1"><span [innerHTML]="type=='point' ? 'Your point coordinates are:' : 'Your polygon\'s centroid coordinates are:'"></span><br>
-  <span class="preety-text font-weight-bold"> longitude <span class="font-weight-normal" style="color:initial">=</span>
-    {{ longitude }} <br>latitute <span class="font-weight-normal" style="color:black">=</span> {{ latitude }} </span><br>
-  <button class="btn btn-info btn-sm m-2" type="button" (click)="goToSoilData()">Get Soil Data</button>
+<div class="jumbotron py-2 mb-1">
+  <div [innerHTML]="type=='point' ? 'Your point coordinates are:' : 'Your polygon\'s centroid coordinates are:'"></div>
+  <div class="preety-text font-weight-bold"> longitude <span class="font-weight-normal" style="color:initial">=</span>
+    {{ longitude }} <br>latitute <span class="font-weight-normal" style="color:black">=</span> {{ latitude }} </div>
+    <div class="d-flex flex-row-reverse">
+      <button class="btn btn-info btn-sm m-2" type="button" (click)="goToSoilData()">Get Soil Data</button>
+    </div>
 </div>
 <div *ngIf="wo" class="jumbotron py-2 mb-1">
   <h5 class="mb-0">Information about your region, {{ wo.region}}:</h5>
@@ -11,7 +14,7 @@
   <p class="mb-0">Sunset time: <span class="px-1 preety-text font-weight-bold">{{ wo.sunset * 1000 | date:'HH:mm:SS a'
       }}</span></p>
 </div>
-<app-weather-template *ngIf="wo" [weatherObject]="wo"></app-weather-template>
+<app-weather-template *ngIf="wo" [weatherObject]="wo" [isIndexAvailable]="isIndexAvailable"></app-weather-template>
 
 
 

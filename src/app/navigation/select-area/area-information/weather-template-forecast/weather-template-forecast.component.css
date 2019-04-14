@@ -23,3 +23,17 @@ div.bg-info {
     color: transparent;
     text-shadow: rgba(255, 255, 255, 0.5) 0px 3px 3px;
 }
+
+.fireClass {
+    padding-top: 10px;
+    border-style: solid;
+    border-width: 3px;
+    border-radius: 5px;
+    border-color: black;
+    background: #dc3545;
+    color: white;
+  }
+  
+  .fireIndex {
+    font-size: 120%;
+  }

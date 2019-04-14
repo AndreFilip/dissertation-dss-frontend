@@ -25,17 +25,19 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
   private mapView: esri.MapView;
   private tempGraphicsLayer: esri.GraphicsLayer;
   private sketchViewModel: esri.SketchViewModel;
-
   private selectedGraphic: esri.Graphic;
   private area: number;
   private areaIndex: string;
-
   private latitude;
   private longitude;
   private polylineLength;
   private type;
-  
+  private index;
   private wos = [];
+  private changeCommentsEl; 
+  private changeTitleEl;  
+  private succesEditedGraphicEl;
+  private isIndexAvailable: boolean;
 
   @ViewChild('mapViewNode') private mapViewEl: ElementRef;
   @ViewChild('streetsLayer') private streetsLayerEl: ElementRef;
@@ -50,28 +52,38 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.initializeMap();
     this.initializeWeatherSubscriber();
+    this.changeCommentsEl = < HTMLTextAreaElement > document.getElementById("changeComments"); 
+    this.changeTitleEl = < HTMLInputElement > document.getElementById("changeTitle"); 
+    this.succesEditedGraphicEl = < HTMLElement > document.getElementById("succesEditedGraphicEl");
+    this.areaInformationService.fireIndexObservable.subscribe( (index)=> {
+        this.index = index;
+    });
+    
   }
 
   ngOnDestroy() {
+    this.saveGraphics(false);
   } 
 
   //forecasted weather
   initializeWeatherSubscriber() {
-    this.areaInformationService.forecasts.subscribe( (forecasts) => { 
-      if (forecasts && this.latitude && this.longitude && this.wos.length == 0) {
+    this.areaInformationService.forecasts.subscribe( (result) => { 
+      if (result.forecasts && this.latitude && this.longitude && this.wos.length == 0) {
         this.areaInformationService.getWeatherForecastData(this.latitude, this.longitude).subscribe( (data) => {
           //console.log(data);
           if ((<any>data).cod == 200) {
             this.wos = (<any>data).list;
-            // this.router.navigate(['']);
+            this.isIndexAvailable = result.isIndexAvailable;
+            this.scrollToAnchor("forecasts", 200);
           }
         });
       }
-      if (!forecasts) {
+      if (!result.forecasts) {
         this.wos = [];
       }
     });
-  }
+    
+  } 
 
   async initializeMap() {
     let component = this;
@@ -214,6 +226,8 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         component.sketchViewModel.on("update-complete", component.updateGraphic);
         component.sketchViewModel.on("update-cancel", component.updateGraphic);
         component.setUpClickHandler();
+      }).then(() => {
+        this.loadGraphicsNoModal();
       });
 
     } catch (error) {
@@ -265,6 +279,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         }
         // Disappear weather forcasted if exists
         component.wos = [];
+        component.index = null;
       });
 
     });
@@ -309,25 +324,25 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
           if (this.selectedGraphic) {
             let what = confirm("Are you sure you want to delete the selected graphic?");
             if (what) {
-              if (this.selectedGraphic.attributes && (this.selectedGraphic.attributes.idReturned == undefined || this.selectedGraphic.attributes.idReturned == null)) {
+              if (this.selectedGraphic.attributes && (this.selectedGraphic.attributes.id == undefined || this.selectedGraphic.attributes.id == null)) {
                 this.tempGraphicsLayer.graphics.remove(this.selectedGraphic);
                 this.mapView.goTo({
                   target: this.mapView.center,
                 });
                 this.selectedGraphic == null;
-              } else {
-                this.graphicsService.deleteGraphic(this.selectedGraphic.attributes.idReturned).subscribe(results => {
+              } else if (this.selectedGraphic.attributes && (this.selectedGraphic.attributes.id != undefined || this.selectedGraphic.attributes.id != null)) {{
+                this.graphicsService.deleteGraphic(this.selectedGraphic.attributes.id).subscribe(results => {
                     console.log("Successfully deleted the graphic.");
                     this.tempGraphicsLayer.graphics.remove(this.selectedGraphic);
                     this.selectedGraphic == null;
                     this.mapView.goTo({
                       target: this.mapView.center,
                     });
-
+                    this.openModal("Successfully deleted the graphic.");
                   },
                   error => {
                     console.log("Error in drawGrahic()-resetButton: ", error);
-
+                    this.openModal("The graphic was not deleted. Please try again later.");
                   });
               }
             }
@@ -335,6 +350,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
             alert("Choose a graphic first!");
           }
           break;
+          }
         }
       default:
         {
@@ -355,10 +371,10 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
     });
   }
 
-  saveGraphics() {
+  saveGraphics(withmodal?:boolean) {
     let component = this;
     let graphicsCollection = component.tempGraphicsLayer.graphics;
-    console.log(graphicsCollection);
+    // console.log(graphicsCollection);
     if (graphicsCollection.length > 0) {
       let graphicsToSave: Array <any> = [];
       for (let graphic of graphicsCollection.toArray()) {
@@ -382,22 +398,25 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         }          
        graphicsToSave.push(graphicToSave);       
       }
-      //console.log("graphicsToSave");
-
-//console.log(graphicsToSave);
       component.graphicsService.saveGraphics(graphicsToSave).subscribe(
         results => { 
           console.log("saveGraphics successfully: ", results);
           this.loadGraphicsNoModal();
-          this.openModal('Map was saved successfully!');
+          if (withmodal) {
+            this.openModal('Map was saved successfully!');
+          }
         }, 
         error => {
-          console.log("Error saveGraphics: ", error);    
-          this.openModal('Error! Map was not saved!');    
+          console.log("Error saveGraphics: ", error);
+          if (withmodal) {
+          this.openModal('Error! Map was not saved!');  
+          }  
         }
       );
     } else {
+      if (withmodal) {
       this.openModal('Draw graphics first!');    
+      }
     }
 
   }
@@ -458,6 +477,8 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
   removeAllGraphicsFromMap() {
     this.tempGraphicsLayer.graphics.removeAll();
   }
+
+  
 
   async drawGraphicAfterLoading(graphicFromServer: Graphic) {
     //console.log("graphicFromServer");
@@ -620,87 +641,33 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
   }
   
 
-  async changeColor(value) {    
-    let component = this;
-    var [Color] = await loadModules([
-      'esri/Color'
-    ]);
-
-    if (component.selectedGraphic && component.selectedGraphic.symbol.declaredClass == "esri.symbols.SimpleMarkerSymbol") {
-      ( < esri.SimpleMarkerSymbol > component.selectedGraphic.symbol).color = new Color(value);
-      component.mapView.goTo({
-        target: component.mapView.center,
-      });
-    }
-
-    if (component.selectedGraphic && component.selectedGraphic.symbol.declaredClass == "esri.symbols.SimpleLineSymbol") {
-      ( < esri.SimpleLineSymbol > component.selectedGraphic.symbol).color = new Color(value);
-      component.mapView.goTo({
-        target: component.mapView.center,
-      });
-    }
-
-    if (component.selectedGraphic && component.selectedGraphic.symbol.declaredClass == "esri.symbols.SimpleFillSymbol") {
-      ( < esri.SimpleFillSymbol > component.selectedGraphic.symbol).color = new Color(value);
-      component.mapView.goTo({
-        target: component.mapView.center,
-      });
-      ( < esri.SimpleFillSymbol > component.selectedGraphic.symbol).color.a = 0.7;
-    }
-    component.showSuccessColor();
-  }
-
-  showSuccessColor() {
-    let succesColor = < HTMLElement > document.getElementById("succesColor");
-    succesColor.classList.remove("hide");
-    setTimeout(() => {
-      succesColor.classList.add("hide");
-    }, 3000);
-  }
-
-  changeTitle() {
-    let component = this;
-    let inputEl = < HTMLInputElement > document.getElementById("changeTitle");
-    let newtitle = inputEl.value;
-    if (!component.selectedGraphic) {
-      alert("Choose a graphic first!");
+  async editTheGraphic(value: any) {
+    let component = this;  
+    if (!component.selectedGraphic) { 
+      this.openModal("Choose a graphic first!");
     } else {
-      component.selectedGraphic.attributes.title = newtitle;
-      //inputEl.value = "";
-      component.showSuccessTitle();
-    }
-  }
-
-  showSuccessTitle() {
-    let succesTitleEl = < HTMLElement > document.getElementById("succesTitle");
-    succesTitleEl.classList.remove("hide");
-    setTimeout(() => {
-      succesTitleEl.classList.add("hide");
-    }, 3000);
-  }
-
-
-  changeComments() {
-    let component = this;
-    let inputEl = < HTMLTextAreaElement > document.getElementById("changeComments");
-    // console.log(inputEl);
-    
-    let newcomments = inputEl.value;
-    if (!component.selectedGraphic) {
-      alert("Choose a graphic first!");
-    } else {
-      component.selectedGraphic.attributes.comments = newcomments;
-      //inputEl.value = "";
+      try {
+        var [Color] = await loadModules([
+          'esri/Color'
+        ]);
+        (<any>component.selectedGraphic.symbol).color = new Color(value);
+        component.mapView.goTo({
+          target: component.mapView.center,
+        });  
+      } catch {
+        this.openModal("Couldn't change graphic's color. Please try later!");
+      }        
+      component.selectedGraphic.attributes.comments = component.changeCommentsEl.value;
+      component.selectedGraphic.attributes.title =  component.changeTitleEl.value;
       component.showSuccessComments();
-    }
+    }      
   }
 
   showSuccessComments() {
-    let succesCommentsEl = < HTMLElement > document.getElementById("succesComments");
-    succesCommentsEl.classList.remove("hide");
+    this.succesEditedGraphicEl.classList.remove("hide");
     setTimeout(() => {
-      succesCommentsEl.classList.add("hide");
-    }, 3000);
+      this.succesEditedGraphicEl.classList.add("hide");
+    }, 2000);
   }
 
   // https://developers.arcgis.com/rest/services-reference/project.htm
@@ -880,11 +847,20 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
     console.log("this.selectedGraphic : " , this.selectedGraphic);
   }
 
-  test2() {}
+  test2() {
+   
+  }
 
   onGet() {}
  
-
+  scrollToAnchor(location: string, wait: number): void {
+    const element = document.querySelector('#' + location)
+    if (element) {
+      setTimeout(() => {
+        element.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'nearest'})
+      }, wait)
+    }
+  }
 } //end SelectAreaComponent
 
 

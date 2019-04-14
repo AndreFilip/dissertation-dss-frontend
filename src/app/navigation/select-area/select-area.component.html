@@ -1,77 +1,73 @@
 <div class="container-fluid">
-  <div class="row">
-    <div class="col-10 offset-2">
-      <button (click)="test()" class="mx-1">test</button>
-      <button (click)="test2()" class="mx-1">test 2</button>
-      <button (click)="saveGraphics()" class="mx-1">Save Graphics</button>
-      <button (click)="loadGraphics()" class="mx-1">Load Graphics</button>
-      <button (click)="deleteGraphics()" class="mx-1">Delete Graphics</button>
-    </div>
-  </div>
+
   <div class="row mt-2">
     <div class="col-12 col-sm-4 col-md-2">
       <input type="checkbox" checked #streetsLayer /> Transportation
     </div>
   </div>
+
   <div class="row mt-3">
     <div class="col-lg-2">
-      <!-- section navbar -->
-      <label for="esri-icons-navbar" class="font-weight-bold row">Select an icon</label>
-      <section class="text-left row" id="esri-icons-navbar">
-        <button class="action-button esri-icon-blank-map-pin mr-2" type="button" title="Draw a point" id="pointButton"
+      <!-- Select type of graphic. Also, edit its shape or delete it.-->
+      <label for="esri-icons-navbar" class="font-weight-bold row">Actions:</label>
+      <section class="text-left row justify-content-between" id="esri-icons-navbar">
+        <div class="col-12 col-sm-4 col-lg-6">
+        <button class="action-button esri-icon-blank-map-pin mr-1 mb-1" type="button" title="Draw a point" id="pointButton"
           #pointButton (click)="drawGrahic($event)"></button>
-        <button class="action-button esri-icon-polyline mr-2" type="button" title="Draw a polyline" id="polylineButton"
+        <button class="action-button esri-icon-polyline mr-1 mb-1" type="button" title="Draw a polyline" id="polylineButton"
           #polylineButton (click)="drawGrahic($event)"></button>
-        <button class="action-button esri-icon-polygon mr-2" type="button" title="Draw a polygon" id="polygonButton"
+        <button class="action-button esri-icon-polygon mb-1" type="button" title="Draw a polygon" id="polygonButton"
           #polygonButton (click)="drawGrahic($event)"></button>
-        <button class="action-button esri-icon-edit mr-2" type="button" title="Select a graphic and edit it" id="editButton"
+        </div>
+        <div class="col-12 col-sm-4 col-lg-6">
+            <button class="action-button esri-icon-edit mr-1 mb-1" type="button" title="Edit graphic's shape" id="editButton"
           #resetButton (click)="drawGrahic($event)"></button>
-        <button class="action-button esri-icon-trash" type="button" title="Select a graphic and clear it" id="resetButton"
+        <button class="action-button esri-icon-erase mr-1 mb-1" type="button" title="Delete a graphic" id="resetButton"
           #resetButton (click)="drawGrahic($event)"></button>
-
+        <button class="action-button esri-icon-trash" type="button" title="Delete Map!"
+          (click)="deleteGraphics()"></button>
+        </div>
       </section>
-      <!-- section Change comments and title -->
+      <!-- Change comments/title/color of a graphic-->
       <hr>
       <section>
-        <button class="btn btn-sm dropdown-toggle btn-secondary row" type="button" data-toggle="collapse" data-target="#areaTexts"
-          aria-expanded="false" aria-controls="areaTexts">Alter title/comments</button>
-        <fieldset id="areaTexts" class="collapse">
-          <label for="changeTitle" class="font-weight-bold row">Title:</label>
-          <div class="row justify-content-between">
-            <input class="m-1 col-6" id="changeTitle" maxlength="30" [value]="selectedGraphic?.attributes?.title" />
-            <button class="m-1 col-4 btn btn-primary btn-sm" type="button" title="Change title" id="" (click)="changeTitle()">Save</button>
-          </div>
-          <hr>
-          <label for="changeComments" class="font-weight-bold row">Comments:</label>
+        <button class="btn btn-sm dropdown-toggle btn-info" type="button" data-toggle="collapse"
+          data-target="#editgraphicarea" aria-expanded="false" aria-controls="editgraphicarea">Edit
+          graphic&nbsp;&nbsp;&nbsp;&nbsp;</button>
+        <fieldset id="editgraphicarea" class="collapse mt-2" style="margin-left: 15px; margin-right: 15px;">
           <div class="row">
-            <textarea class="m-1 col-12" id="changeComments" maxlength="250" rows="6" style="overflow:auto" [value]="selectedGraphic?.attributes?.comments"></textarea>
-            <button class="m-1 btn btn-primary btn-sm" type="button" title="Change comments" id="" (click)="changeComments()">Save</button>
+            <label for="changeTitle" class="font-weight-bold col-12">Title:</label>
+            <input class="col-12" id="changeTitle" maxlength="30" [value]="selectedGraphic?.attributes?.title" />
           </div>
-          <p class="hide" style="color:green" id="succesTitle">Title changed</p>
-          <p class="hide" style="color:green" id="succesComments">Comments changed</p>
+          <div class="row mt-2">
+            <label for="changeComments" class="font-weight-bold col-12">Comments:</label>
+            <textarea class="col-12" id="changeComments" maxlength="250" rows="6" style="overflow:auto"
+              [value]="selectedGraphic?.attributes?.comments"></textarea>
+          </div>
+          <div class="row mt-2">
+            <label for="areaColor" class="font-weight-bold col-6">Select color:</label>
+            <input type="color" id="color" name="color" class="col-6" #chooseColor2
+              [value]="selectedGraphic?.symbol?.color.toHex()" />
+          </div>
+          <div class="d-flex flex-row-reverse my-1">
+            <button class="btn btn-info btn-sm px-3" type="button" title="" id=""
+              (click)="editTheGraphic(chooseColor2.value)" style="margin-right:-15px;">Save</button>
+          </div>
+          <p class="hide" style="color:green" id="succesEditedGraphicEl">Graphic edited!</p>
         </fieldset>
       </section>
-      <!-- section Select color-->
       <hr>
-      <section>
-        <button class="btn btn-sm dropdown-toggle btn-secondary row" type="button" data-toggle="collapse" data-target="#areaColor"
-          aria-expanded="false" aria-controls="areaColor">Alter color</button>
-        <div id="areaColor" class="collapse">
-          <label for="areaColor" class="font-weight-bold row">Select color:</label>
-          <div id="color" class="row justify-content-between m-2">
-            <input type="color" id="color" name="color" class="col-4 mt-2 mt-lg-0" #chooseColor2 [value]="selectedGraphic?.symbol?.color.toHex()" />
-            <button class="btn btn-primary btn-sm col-6 ml-2 mt-2 mt-lg-0" type="button" title="" id="" (click)="changeColor(chooseColor2.value)">Save</button>
-          </div>
-        </div>
-        <p class="hide" style="color:green" id="succesColor">Color changed</p>
-      </section>
-     <section>    
-        <!-- <button class="btn btn-primary btn-sm" type="button" (click)="getAirQualities()" *ngIf="latitude && longitude">Get Air</button>   -->
-        <hr>
-        <p>get fire danger ?</p>
-      </section>
-      <hr>
-      <section>
+      <!-- <div class="fireClass">
+        <p  class="text-center font-weight-bold" >Fire index: <span class="fireIndex">{{ index }}</span></p>
+      </div>     -->
+      <div *ngIf="index&&index!=undefined" class="fireClass">
+        <p *ngIf="index&&index!=-1" class="text-center font-weight-bold">Fire index: <span
+            class="fireIndex">{{ index }}</span></p>
+        <p *ngIf="index&&index==-1" class="text-center">Fire index was not found for this region.</p>
+      </div>
+      <hr *ngIf="index">
+      <!-- <hr> -->
+      <!-- <section>
         <h3>both KML</h3>
         <p>insert a kml file</p>
         <p>manipulate a KML file</p>
@@ -82,8 +78,23 @@
       <section>
         <h3>both ALERTS</h3>
         <p>subscibe to alerts/notifications for an area</p>
-      </section>
+      </section> -->
 
+      <!-- <div class="row"> -->
+        <!-- <button (click)="test()" class="mx-1">test</button> -->
+        <!-- <button (click)="saveGraphics(true)" class="mx-1">Save Graphics</button>
+        <button (click)="loadGraphics()" class="mx-1">Load Graphics</button> -->
+        <!-- <button (click)="deleteGraphics()" class="mx-1 btn btn-sm btn-danger">Delete Map!</button> -->
+        <!-- <div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            Options
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <button (click)="deleteGraphics()" class="dropdown-item mx-1 btn btn-sm btn-danger">Delete Map!</button>
+          </div>
+        </div> -->
+      <!-- </div> -->
     </div>
     <!-- map -->
     <main class="col-lg-10">
@@ -101,11 +112,12 @@
         </section>
         <section class="col-12">
           <div class="row">
-            <ngb-tabset id="forecast">
+            <ngb-tabset id="forecasts">
               <ngb-tab *ngFor="let wo of wos">
                 <ng-template ngbTabTitle>{{ wo.dt * 1000 | date:'dd/MM - HH:mm' }}</ng-template>
                 <ng-template ngbTabContent>
-                  <app-weather-template-forecast [wo]="wo"></app-weather-template-forecast>
+                  <app-weather-template-forecast [wo]="wo" [isIndexAvailable]="isIndexAvailable">
+                  </app-weather-template-forecast>
                 </ng-template>
               </ngb-tab>
             </ngb-tabset>

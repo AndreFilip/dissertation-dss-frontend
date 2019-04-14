@@ -21,8 +21,10 @@
             <p class="" *ngIf="wo?.pressure">The atmospheric pressure is <span class="font-weight-bold preety-text ">{{ wo.pressure }} hPa</span></p>
             <p class="" *ngIf="wo?.humidity">The percentage of humidity is <span class="font-weight-bold preety-text ">{{ wo.humidity }}%</span></p>
         </div>
-        <button type="button" (click)="getForecast()" class="btn btn-sm btn-info float-right m-1">Get forecast</button>
-        <button type="button" (click)="discardForecast()" class="btn btn-sm btn-danger float-right m-1">Discard forecast</button>
+        <div class="d-flex flex-column">
+        <button type="button" (click)="getForecast()" class="btn btn-sm btn-info m-1" >Get forecast</button>
+        <button type="button" (click)="discardForecast()" class="btn btn-sm btn-danger m-1" *ngIf="toggleBtn">Discard forecast</button>
+        </div>
     </div>
 </div>
 
