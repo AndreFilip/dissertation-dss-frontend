@@ -135,15 +135,16 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         id: "streets"
       });
       component.tempGraphicsLayer = new GraphicsLayer();
-      var kmllayer = new KMLLayer({
-        url: component.herokuhost + "/downloadFile/KML_Samples.kml"
-        // url: this.host + "/downloadFile/lines.kml"
-      });
+      // var kmllayer = new KMLLayer({
+      //   url: component.herokuhost + "/downloadFile/KML_Samples.kml"
+      //   // url: this.host + "/downloadFile/lines.kml"
+      // });
 
       //set up map    
       var map: esri.Map = new EsriMap({
         basemap: 'topo',
-        layers: [transportationLayer, component.tempGraphicsLayer, kmllayer]
+        layers: [transportationLayer, component.tempGraphicsLayer]
+        // layers: [transportationLayer, component.tempGraphicsLayer, kmllayer]
       });
 
       //set up mapview  
