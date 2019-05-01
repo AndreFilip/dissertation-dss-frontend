@@ -115,7 +115,8 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
   async initializeMap() {
     let component = this;
     try {
-      const [EsriMap, EsriMapView, TileLayer, on, BasemapToggle, SketchViewModel, GraphicsLayer, Graphic, SpatialReference, Extent, KMLLayer, BasemapGallery] = await loadModules([
+      const [EsriMap, EsriMapView, TileLayer, on, BasemapToggle, SketchViewModel, GraphicsLayer, Graphic, SpatialReference, Extent, KMLLayer, 
+        BasemapGallery, Print] = await loadModules([
         'esri/Map',
         'esri/views/MapView',
         "esri/layers/TileLayer",
@@ -127,7 +128,8 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         'esri/geometry/SpatialReference',
         'esri/geometry/Extent',
         "esri/layers/KMLLayer",
-        "esri/widgets/BasemapGallery"
+        "esri/widgets/BasemapGallery",
+        "esri/widgets/Print"
       ]);
 
       //set up layers
@@ -157,19 +159,13 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         map: map
       });
 
-      //toggling basemaps
-      // var basemapToggle = new BasemapToggle({
-      //   view: mapView,
-      //   nextBasemap: "hybrid"
-      // });
-      // mapView.ui.add(basemapToggle, "bottom-right");
+      //toggling basemaps     
       var basemapGallery = new BasemapGallery({
         view: mapView
       });
-      mapView.ui.add(basemapGallery, "bottom-right");
-      const maps = "#mapViewNode > div.esri-view-root > div.esri-ui > div.esri-ui-inner-container.esri-ui-corner-container > div.esri-ui-bottom-right.esri-ui-corner";
+      const maps = "#mapViewNode > div.esri-view-root > div.esri-ui > div.esri-ui-inner-container.esri-ui-corner-container > div.esri-ui-top-right.esri-ui-corner";
       const terrains = ".terrains";      
-      $(terrains).hide();
+      $(maps).hide();
       on($(maps), "click", () => {
         $(terrains).toggle();
         $(maps).toggle();
@@ -178,7 +174,22 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         $(terrains).toggle();
         $(maps).toggle();
       });
+      mapView.ui.add(basemapGallery, "top-right");
 
+      //add print/download file
+      var print = new Print({
+        view: mapView,
+        printServiceUrl:
+          "https://utility.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task",
+        id: "myPrint"
+      });
+      const myPrint = "#mapViewNode > div.esri-view-root > div.esri-ui > div.esri-ui-inner-container.esri-ui-corner-container > div.esri-ui-bottom-right.esri-ui-corner";
+      const myPrintIcon = "#myPrintIcon";
+      $(myPrint).hide();     
+      on($(myPrintIcon), "click", () => {
+        $(myPrint).toggle();
+      });
+      mapView.ui.add(print, "bottom-right");
 
 
       //layer EVENTS

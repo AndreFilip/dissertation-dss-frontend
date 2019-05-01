@@ -71,10 +71,20 @@ div.scroll {
 }
 
 .terrains {
+  position: absolute;
+  z-index: 100;
+  top: 10px;
+  right: 5px;
+}
+
+.myIcons {
   cursor: pointer;
+  background-color: white;
+}
+
+#myPrintIcon {
   position: absolute;
   z-index: 100;
   bottom: 20px;
   right: 5px;
-  background-color: white;
 }
