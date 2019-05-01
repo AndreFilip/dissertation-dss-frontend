@@ -116,7 +116,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
     let component = this;
     try {
       const [EsriMap, EsriMapView, TileLayer, on, BasemapToggle, SketchViewModel, GraphicsLayer, Graphic, SpatialReference, Extent, KMLLayer, 
-        BasemapGallery, Print] = await loadModules([
+        BasemapGallery, Print, Compass, Fullscreen, LayerList] = await loadModules([
         'esri/Map',
         'esri/views/MapView',
         "esri/layers/TileLayer",
@@ -129,7 +129,10 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         'esri/geometry/Extent',
         "esri/layers/KMLLayer",
         "esri/widgets/BasemapGallery",
-        "esri/widgets/Print"
+        "esri/widgets/Print",
+        "esri/widgets/Compass",
+        "esri/widgets/Fullscreen",
+        "esri/widgets/LayerList",
       ]);
 
       //set up layers
@@ -138,7 +141,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         opacity: 0.7,
         id: "streets"
       });
-      component.tempGraphicsLayer = new GraphicsLayer();
+      component.tempGraphicsLayer = new GraphicsLayer({title: "Graphics Layer"});
       // var kmllayer = new KMLLayer({
       //   url: component.herokuhost + "/downloadFile/KML_Samples.kml"
       //   // url: this.host + "/downloadFile/lines.kml"
@@ -158,6 +161,21 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         zoom: 7,
         map: map
       });
+
+      // var compassWidget = new Compass({
+      //   view: mapView
+      // });
+      // mapView.ui.add(compassWidget, "top-left");
+
+      var fullscreen = new Fullscreen({
+        view: mapView
+      });
+      mapView.ui.add(fullscreen, "top-left");
+
+      var layerList = new LayerList({
+        view: mapView
+      });
+      mapView.ui.add(layerList, "bottom-left");
 
       //toggling basemaps     
       var basemapGallery = new BasemapGallery({
@@ -193,9 +211,9 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
 
 
       //layer EVENTS
-      on(component.streetsLayerEl.nativeElement, "change", function () {
-        transportationLayer.visible = this.checked;
-      });
+      // on(component.streetsLayerEl.nativeElement, "change", function () {
+      //   transportationLayer.visible = this.checked;
+      // });
 
       // when MapView gets ready
       mapView.when(() => {
