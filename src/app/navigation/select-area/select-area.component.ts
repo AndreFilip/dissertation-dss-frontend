@@ -35,6 +35,7 @@ import {
   ModalComponent
 } from '../../components/modal/modal.component';
 
+import * as $ from 'jquery';
 
 @Component({
   selector: 'app-select-area',
@@ -114,7 +115,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
   async initializeMap() {
     let component = this;
     try {
-      const [EsriMap, EsriMapView, TileLayer, on, BasemapToggle, SketchViewModel, GraphicsLayer, Graphic, SpatialReference, Extent, KMLLayer] = await loadModules([
+      const [EsriMap, EsriMapView, TileLayer, on, BasemapToggle, SketchViewModel, GraphicsLayer, Graphic, SpatialReference, Extent, KMLLayer, BasemapGallery] = await loadModules([
         'esri/Map',
         'esri/views/MapView',
         "esri/layers/TileLayer",
@@ -125,7 +126,8 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         'esri/Graphic',
         'esri/geometry/SpatialReference',
         'esri/geometry/Extent',
-        "esri/layers/KMLLayer"
+        "esri/layers/KMLLayer",
+        "esri/widgets/BasemapGallery"
       ]);
 
       //set up layers
@@ -156,11 +158,28 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
       });
 
       //toggling basemaps
-      var basemapToggle = new BasemapToggle({
-        view: mapView,
-        nextBasemap: "hybrid"
+      // var basemapToggle = new BasemapToggle({
+      //   view: mapView,
+      //   nextBasemap: "hybrid"
+      // });
+      // mapView.ui.add(basemapToggle, "bottom-right");
+      var basemapGallery = new BasemapGallery({
+        view: mapView
       });
-      mapView.ui.add(basemapToggle, "bottom-right");
+      mapView.ui.add(basemapGallery, "bottom-right");
+      const maps = "#mapViewNode > div.esri-view-root > div.esri-ui > div.esri-ui-inner-container.esri-ui-corner-container > div.esri-ui-bottom-right.esri-ui-corner";
+      const terrains = ".terrains";      
+      $(terrains).hide();
+      on($(maps), "click", () => {
+        $(terrains).toggle();
+        $(maps).toggle();
+      });
+      on($(terrains), "click", () => {
+        $(terrains).toggle();
+        $(maps).toggle();
+      });
+
+
 
       //layer EVENTS
       on(component.streetsLayerEl.nativeElement, "change", function () {

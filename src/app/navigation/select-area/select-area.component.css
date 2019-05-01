@@ -69,3 +69,12 @@ div.scroll {
 #esri-icons-navbar button:hover {
   cursor: pointer;
 }
+
+.terrains {
+  cursor: pointer;
+  position: absolute;
+  z-index: 100;
+  bottom: 20px;
+  right: 5px;
+  background-color: white;
+}
