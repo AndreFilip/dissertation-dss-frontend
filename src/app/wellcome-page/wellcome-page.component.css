@@ -1,11 +1,9 @@
 main {
     width: 50%;
+    font-family: cursive;
 }
 
 div {
     font-size: 1.1rem;
 }
 
-/* h5 {
-    width: 50%;
-} */

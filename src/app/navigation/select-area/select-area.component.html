@@ -1,11 +1,4 @@
 <div class="container-fluid">
-
-  <!-- <div class="row mt-2">
-    <div class="col-12 col-sm-4 col-md-2">
-      <input type="checkbox" checked #streetsLayer /> Transportation
-    </div>
-  </div> -->
-
   <div class="row mt-3">
     <div class="col-lg-2">
       <!-- Select type of graphic. Also, edit its shape or delete it.-->
@@ -57,44 +50,12 @@
         </fieldset>
       </section>
       <hr>
-      <!-- <div class="fireClass">
-        <p  class="text-center font-weight-bold" >Fire index: <span class="fireIndex">{{ index }}</span></p>
-      </div>     -->
       <div *ngIf="index&&index!=undefined" class="fireClass">
         <p *ngIf="index&&index!=-1" class="text-center font-weight-bold">Fire index: <span
             class="fireIndex">{{ index }}</span> {{indexDescription}}</p>
         <p *ngIf="index&&index==-1" class="text-center">Fire index was not found for this region.</p>
       </div>
       <hr *ngIf="index">
-      <!-- <hr> -->
-      <!-- <section>
-        <h3>both KML</h3>
-        <p>insert a kml file</p>
-        <p>manipulate a KML file</p>
-        <p>save a kml file</p>
-        <p>delete a kml file</p>
-      </section>
-      <hr>
-      <section>
-        <h3>both ALERTS</h3>
-        <p>subscibe to alerts/notifications for an area</p>
-      </section> -->
-
-      <!-- <div class="row"> -->
-        <!-- <button (click)="test()" class="mx-1">test</button> -->
-        <!-- <button (click)="saveGraphics(true)" class="mx-1">Save Graphics</button>
-        <button (click)="loadGraphics()" class="mx-1">Load Graphics</button> -->
-        <!-- <button (click)="deleteGraphics()" class="mx-1 btn btn-sm btn-danger">Delete Map!</button> -->
-        <!-- <div class="dropdown">
-          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
-            aria-haspopup="true" aria-expanded="false">
-            Options
-          </button>
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <button (click)="deleteGraphics()" class="dropdown-item mx-1 btn btn-sm btn-danger">Delete Map!</button>
-          </div>
-        </div> -->
-      <!-- </div> -->
     </div>
     <!-- map -->
     <main class="col-lg-10">
@@ -107,7 +68,6 @@
         </section>
         <!-- section data from external apis-->
         <section class="col-lg-3">
-          <!-- <button class="btn btn-primary btn-sm" type="button" (click)="onGet()">Get Area Information</button>         -->
           <app-polyline-information [polylineLength]="polylineLength" *ngIf="polylineLength"></app-polyline-information>
           <app-polygon-information [area]="area" [areaIndex]="areaIndex" *ngIf="area"></app-polygon-information>
           <app-area-information [latitude]="latitude" [longitude]="longitude" [selectedGraphic]="selectedGraphic"
@@ -125,11 +85,9 @@
               </ngb-tab>
             </ngb-tabset>
           </div>
-
         </section>
       </div>
     </main>
   </div>
-
 </div>
 <!-- end container-fluid -->

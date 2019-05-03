@@ -5,9 +5,7 @@ import { Component, OnInit } from '@angular/core';
   templateUrl: './wellcome-page.component.html',
   styleUrls: ['./wellcome-page.component.css']
 })
-export class WellcomePageComponent implements OnInit {
-  
-  private title: String = "Decision Support System";
+export class WellcomePageComponent implements OnInit {  
 
   constructor() { }
 

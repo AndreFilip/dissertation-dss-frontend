@@ -53,18 +53,8 @@ export class AreaInformationService {
     return this.http.post<Soil>(this.mySoilResultsURL, soil, httpOptions); 
   }
 
-  //let start = new Date().getTime() - this.DAY_IN_MILISECONDS;
   getFireIndex(data: any) {
     return this.http.post(this.myFireDataResultsURL, data ,httpOptions); 
   }
  
 }
-
-
-
-  // private describeUrl = 'https://rest.soilgrids.org/query/describe';  
-  // private airQualityCO = 'http://api.openweathermap.org/pollution/v1/co/'; 
-  // private airQualityNO2 = 'http://api.openweathermap.org/pollution/v1/no2/';
-  // private airQualityO3 = 'http://api.openweathermap.org/pollution/v1/o3/';
-  // private airQualitySO2 = 'http://api.openweathermap.org/pollution/v1/so2/';
-  // private airEnd = '.json?appid=fdf3690158d951e8c0031cb22966f666';

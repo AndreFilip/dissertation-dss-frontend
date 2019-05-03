@@ -36,7 +36,6 @@ export class AreaInformationComponent implements OnInit, OnChanges {
   constructor(private areaInformationService: AreaInformationService, private router: Router) {}
 
   ngOnChanges(changes: SimpleChanges) {
-    // console.log(changes);
     if (!changes.latitude.firstChange || !changes.longitude.firstChange) {      
       this.initializeWeatherData(this.latitude, this.longitude);     
       this.latitude = this.roundTo2Decimals(this.latitude).toString();
@@ -59,7 +58,6 @@ export class AreaInformationComponent implements OnInit, OnChanges {
 
   initializeWeatherData(lat, lon) {
     this.areaInformationService.getWeatherData(lat, lon).subscribe((response) => {
-      //console.log(response);
       let data = ( < any > response);
       if (data.rain) {
         var rain1 = data.rain['1h'] ? data.rain['1h'] : undefined;
@@ -73,7 +71,7 @@ export class AreaInformationComponent implements OnInit, OnChanges {
         data.wind.speed, data.wind.deg, data.clouds.all, rain1, rain3, snow1, snow3, data.dt, data.sys.sunrise, data.sys.sunset, data.name);
         this.checkIfIsLandAndBringFireIndex();
       }, error => {
-      //console.log(error);
+      console.log(error);
       this.errors.push["An error occured during gathering data."];
     });
   }

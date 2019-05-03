@@ -120,13 +120,10 @@
                 </div>
                 <button class="btn btn-primary btn-sm float-right ml-2" type="submit" [disabled]="form.invalid">Evaluate
                     Data</button>
-                <!-- <button class="btn btn-warning btn-sm float-right ml-2" type="button" (click)="logForm(form)">log
-                    ngform</button> -->
                 <button class="btn btn-danger btn-sm float-right ml-2" type="button" (click)="soilDataResults = null" *ngIf="soilDataResults">Close Evaluation</button>
                 <button class="btn btn-success btn-sm float-right" type="button"
                     [disabled]="longitude.invalid || latitude.invalid" [hidden]="form.valid" (click)="getSoilData()">Get
                     Soil Data</button>
-                <!--  -->
             </form>
         </div>
         <div class="col-md-6 mt-4">

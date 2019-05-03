@@ -116,7 +116,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
     let component = this;
     try {
       const [EsriMap, EsriMapView, TileLayer, on, BasemapToggle, SketchViewModel, GraphicsLayer, Graphic, SpatialReference, Extent, KMLLayer, 
-        BasemapGallery, Print, Compass, Fullscreen, LayerList] = await loadModules([
+        BasemapGallery, Print, Compass, Fullscreen, LayerList, MapImageLayer] = await loadModules([
         'esri/Map',
         'esri/views/MapView',
         "esri/layers/TileLayer",
@@ -133,25 +133,35 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         "esri/widgets/Compass",
         "esri/widgets/Fullscreen",
         "esri/widgets/LayerList",
+        "esri/layers/MapImageLayer"
       ]);
 
       //set up layers
       var transportationLayer = new TileLayer({
         url: "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer",
         opacity: 0.7,
-        id: "streets"
+        id: "streets",
+        visible: false
       });
-      component.tempGraphicsLayer = new GraphicsLayer({title: "Graphics Layer"});
+
+      var nat_geo_layer = new TileLayer({
+        url: "https://server.arcgisonline.com/arcgis/rest/services/NatGeo_World_Map/MapServer",
+        opacity: 0.7,
+        id: "nat_geo_layer",
+        visible: false
+      });
+
       // var kmllayer = new KMLLayer({
       //   url: component.herokuhost + "/downloadFile/KML_Samples.kml"
       //   // url: this.host + "/downloadFile/lines.kml"
       // });
 
+      component.tempGraphicsLayer = new GraphicsLayer({title: "Graphics Layer"});
+
       //set up map    
       var map: esri.Map = new EsriMap({
         basemap: 'topo',
-        layers: [transportationLayer, component.tempGraphicsLayer]
-        // layers: [transportationLayer, component.tempGraphicsLayer, kmllayer]
+        layers: [transportationLayer, nat_geo_layer, component.tempGraphicsLayer]
       });
 
       //set up mapview  
@@ -161,11 +171,6 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         zoom: 7,
         map: map
       });
-
-      // var compassWidget = new Compass({
-      //   view: mapView
-      // });
-      // mapView.ui.add(compassWidget, "top-left");
 
       var fullscreen = new Fullscreen({
         view: mapView
@@ -208,12 +213,6 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         $(myPrint).toggle();
       });
       mapView.ui.add(print, "bottom-right");
-
-
-      //layer EVENTS
-      // on(component.streetsLayerEl.nativeElement, "change", function () {
-      //   transportationLayer.visible = this.checked;
-      // });
 
       // when MapView gets ready
       mapView.when(() => {
@@ -450,7 +449,6 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
   saveGraphics(withmodal ? : boolean) {
     let component = this;
     let graphicsCollection = component.tempGraphicsLayer.graphics;
-    // console.log(graphicsCollection);
     if (graphicsCollection.length > 0) {
       let graphicsToSave: Array < any > = [];
       for (let graphic of graphicsCollection.toArray()) {
@@ -556,10 +554,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
 
 
   async drawGraphicAfterLoading(graphicFromServer: Graphic) {
-    //console.log("graphicFromServer");
-    //console.log(graphicFromServer);
     let component = this;
-
     let [Graphic] = await loadModules([
       'esri/Graphic'
     ]);
@@ -917,17 +912,6 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
     return Math.round(num * 1000) / 1000;
   }
 
-
-  test() {
-    console.log("this.selectedGraphic : ", this.selectedGraphic);
-  }
-
-  test2() {
-
-  }
-
-  onGet() {}
-
   scrollToAnchor(location: string, wait: number): void {
     const element = document.querySelector('#' + location)
     if (element) {
@@ -957,74 +941,3 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
     }
   }
 } //end SelectAreaComponent
-
-// Extreme
-// 25+
-// High
-// 13-24
-// Moderate
-// 6-12
-// Low
-// 2-5
-// Very Low
-// 0-1
-
-
-// this.testbutton.nativeElement.onclick = () => {
-//   console.log(this.testbutton2.nativeElement.value);
-
-//   polylineGraphic.setAttribute("title", this.testbutton2.nativeElement.value);
-//   // this.mapView.graphics.remove(polylineGraphic);  
-// };
-
-//  HELPING MODULES
-//  var locatorTask = new Locator({
-//   url: "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer"
-// });   
-
-// mapView.on("click", function(event) {      
-//   event.stopPropagation();
-
-//   var lat = Math.round(event.mapPoint.latitude * 1000) / 1000;
-//   var lon = Math.round(event.mapPoint.longitude * 1000) / 1000;
-
-//   mapView.popup.open({          
-//       title: "Reverse geocode: [" + lon + ", " + lat + "]",
-//       location: event.mapPoint 
-//   });
-
-//   locatorTask.locationToAddress(event.mapPoint).then(function(response) {
-//     mapView.popup.content = response.address;
-//   }).catch(function(error) {
-//     mapView.popup.content = "No address was found for this location";
-//   });
-// }); 
-
-
-
-// mapView.on("key-down", function(event) {    
-//   if (event.key === "Delete" && (editGraphic != null || editGraphic != undefined) ) {   
-//     console.log(editGraphic);
-
-//       tempGraphicsLayer.remove(editGraphic);
-//       sketchViewModel.reset();
-//       console.log("Removed tempGraphicsLayer");
-//       console.log(tempGraphicsLayer);
-
-//   }
-// });        
-
-
-// setActiveButton(selectedButton) {
-//       this.mapView.focus();
-//       var elements = document.getElementsByClassName("active");
-//       for (var i = 0; i < elements.length; i++) {
-//         elements[i].classList.remove("active");
-//       }
-//       if (selectedButton) {
-//         selectedButton.classList.add("active");
-//         // this.theselbut = selectedButton;
-//         // selectedButton.classList.remove("active");
-//         // setTimeout(() => {}, 1000)
-//       }
-//     }
