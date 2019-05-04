@@ -60,6 +60,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
   private changeCommentsEl;
   private changeTitleEl;
   private succesEditedGraphicEl;
+  private errorEditedGraphicEl;
   private isIndexAvailable: boolean;
   private indexDescription: string;
 
@@ -79,6 +80,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
     this.changeCommentsEl = < HTMLTextAreaElement > document.getElementById("changeComments");
     this.changeTitleEl = < HTMLInputElement > document.getElementById("changeTitle");
     this.succesEditedGraphicEl = < HTMLElement > document.getElementById("succesEditedGraphicEl");
+    this.errorEditedGraphicEl = < HTMLElement > document.getElementById("errorEditedGraphicEl");    
     this.areaInformationService.fireIndexObservable.subscribe((index) => {
       this.index = index;
       if (index != -1) {
@@ -89,7 +91,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.saveGraphics(false);
+    //this.saveGraphics(false);
   }
 
   //forecasted weather
@@ -260,8 +262,8 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
                 'colorId': undefined
               },
               popupTemplate: {
-                title: "<p class='font-weight-bold'>{title}</p><hr>",
-                content: `<textarea maxlength="250" rows="4" cols="42" style="overflow:auto"> {comments} </textarea> <hr>`
+                title: "<p class='font-weight-bold' disabled>{title}</p><hr>",
+                content: `<p disabled> {comments} </p> <hr>`
               }
             });
 
@@ -285,7 +287,8 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
             component.latitude = null;
             component.longitude = null;
 
-            component.tempGraphicsLayer.add(graphic);
+            //component.tempGraphicsLayer.add(graphic);
+            component.saveGraphic(graphic);
           } catch (error) {
             console.log("component.sketchViewModel.on('create-complete'): ", error);
             component.area = null;
@@ -439,12 +442,90 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
   updateGraphic(event) {
     let component = this;
     event.graphic.geometry = event.geometry;
-    component.tempGraphicsLayer.add(event.graphic);
-    component.tempGraphicsLayer.graphics.remove(component.selectedGraphic);
+    //component.tempGraphicsLayer.add(event.graphic);
+    //save to DB
+    component.saveGraphic(event.graphic);
+    //remove old version of graphic
+    //component.tempGraphicsLayer.graphics.remove(component.selectedGraphic);
     component.mapView.goTo({
       target: component.mapView.center,
     });
   }
+
+  async editTheGraphic(value: any) {
+    let component = this;
+    if (!component.selectedGraphic) {
+      this.openModal("Choose a graphic first!");
+    } else {
+      try {
+        var [Color] = await loadModules([
+          'esri/Color'
+        ]);
+        ( < any > component.selectedGraphic.symbol).color = new Color(value);
+        component.mapView.goTo({
+          target: component.mapView.center,
+        });
+      } catch {
+        this.openModal("Couldn't change graphic's color. Please try later!");
+      }
+      component.selectedGraphic.attributes.comments = component.changeCommentsEl.value;
+      component.selectedGraphic.attributes.title = component.changeTitleEl.value;
+      //save to DB
+      component.saveGraphic(component.selectedGraphic);
+      //component.showSuccessComments();
+    }
+  }
+
+  saveGraphic(graphic: any) {
+    let graphicToSave;
+    switch (graphic.geometry.type) {
+      case "point":
+        graphicToSave = new Graphic(graphic.attributes.id, graphic.attributes.title, graphic.attributes.comments, ( < any > graphic.geometry).latitude,
+          ( < any > graphic.geometry).longitude, new Color(graphic.attributes.colorId, ( < any > graphic.symbol).color.r, ( < any > graphic.symbol).color.b,
+            ( < any > graphic.symbol).color.g), null, graphic.geometry.type);
+        break;
+      case "polyline":
+        graphicToSave = new Graphic(graphic.attributes.id, graphic.attributes.title, graphic.attributes.comments, null, null,
+          new Color(graphic.attributes.colorId, ( < any > graphic.symbol).color.r, ( < any > graphic.symbol).color.b, ( < any > graphic.symbol).color.g),
+          (( < any > graphic.geometry).paths).toString(), graphic.geometry.type);
+        break;
+      case "polygon":
+        graphicToSave = new Graphic(graphic.attributes.id, graphic.attributes.title, graphic.attributes.comments, ( < any > graphic.geometry).centroid.latitude,
+          ( < any > graphic.geometry).centroid.longitude, new Color(graphic.attributes.colorId, ( < any > graphic.symbol).color.r, ( < any > graphic.symbol).color.b, ( < any > graphic.symbol).color.g),
+          (( < any > graphic.geometry).rings).toString(), graphic.geometry.type);
+        break;
+    }
+
+    this.graphicsService.saveGraphic(graphicToSave).subscribe(
+      graphic => {
+        console.log("Graphic saved successfully: " + JSON.stringify(graphic));
+         this.drawGraphicAfterLoading(graphic);
+        if (!this.selectedGraphic) {
+          this.tempGraphicsLayer.remove(this.selectedGraphic);
+        }
+         this.showSuccessComments();
+      },
+      error => {
+        console.log("Error saveGraphics: " +  JSON.stringify(error));
+        this.showErrorComments();
+
+      }
+    );
+  }
+
+  // loadGraphic(id: string) {
+  //   if (id) {
+  //     this.graphicsService.getGraphic(id).subscribe(graphic => {
+  //       console.log(graphic);
+  //       if (graphic != null) {
+  //         this.tempGraphicsLayer.graphics.remove(this.selectedGraphic);
+  //         this.drawGraphicAfterLoading(graphic);
+  //       }
+  //     }, error => {
+  //       console.log("Error in loadGraphic: " + error);
+  //     })
+  //   }
+  // }
 
   saveGraphics(withmodal ? : boolean) {
     let component = this;
@@ -590,8 +671,8 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
           colorId: colorId
         },
         popupTemplate: {
-          title: "<p class='font-weight-bold'>{title}</p><hr>",
-          content: `<textarea maxlength="250" rows="4" cols="42" style="overflow:auto"> {comments} </textarea> <hr>`
+          title: "<p class='font-weight-bold' disabled>{title}</p><hr>",
+          content: `<p disabled> {comments} </p> <hr>`
         }
 
       });
@@ -631,8 +712,8 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
           colorId: colorId
         },
         popupTemplate: {
-          title: "<p class='font-weight-bold'>{title}</p><hr>",
-          content: `<textarea maxlength="250" rows="4" cols="42" style="overflow:auto"> {comments} </textarea> <hr>`
+          title: "<p class='font-weight-bold' disabled>{title}</p><hr>",
+          content: `<p disabled> {comments} </p> <hr>`
         }
 
       });
@@ -671,8 +752,8 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
           colorId: colorId
         },
         popupTemplate: {
-          title: "<p class='font-weight-bold'>{title}</p><hr>",
-          content: `<textarea maxlength="250" rows="4" cols="42" style="overflow:auto"> {comments} </textarea> <hr>`
+          title: "<p class='font-weight-bold' disabled>{title}</p><hr>",
+          content: `<p disabled> {comments} </p> <hr>`
         }
 
       });
@@ -708,36 +789,20 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
       this.openModal('An error occurred trying to delete the map. Please try again later.');
     })
 
-  }
-
-
-  async editTheGraphic(value: any) {
-    let component = this;
-    if (!component.selectedGraphic) {
-      this.openModal("Choose a graphic first!");
-    } else {
-      try {
-        var [Color] = await loadModules([
-          'esri/Color'
-        ]);
-        ( < any > component.selectedGraphic.symbol).color = new Color(value);
-        component.mapView.goTo({
-          target: component.mapView.center,
-        });
-      } catch {
-        this.openModal("Couldn't change graphic's color. Please try later!");
-      }
-      component.selectedGraphic.attributes.comments = component.changeCommentsEl.value;
-      component.selectedGraphic.attributes.title = component.changeTitleEl.value;
-      component.showSuccessComments();
-    }
-  }
+  }  
 
   showSuccessComments() {
     this.succesEditedGraphicEl.classList.remove("hide");
     setTimeout(() => {
       this.succesEditedGraphicEl.classList.add("hide");
-    }, 2000);
+    }, 3000);
+  }
+
+  showErrorComments() {
+    this.errorEditedGraphicEl.classList.remove("hide");
+    setTimeout(() => {
+      this.errorEditedGraphicEl.classList.add("hide");
+    }, 3000);
   }
 
   // https://developers.arcgis.com/rest/services-reference/project.htm

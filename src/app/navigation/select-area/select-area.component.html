@@ -45,11 +45,12 @@
           <div class="d-flex flex-row-reverse my-1">
             <button class="btn btn-info btn-sm px-3" type="button" title="" id=""
               (click)="editTheGraphic(chooseColor2.value)" style="margin-right:-15px;">Save</button>
-          </div>
-          <p class="hide" style="color:green" id="succesEditedGraphicEl">Graphic edited!</p>
+          </div>          
         </fieldset>
-      </section>
-      <hr>
+        <hr>
+        <p class="hide" style="color:green; font-weight: bold" id="succesEditedGraphicEl">Graphic saved!</p>
+        <p class="hide" style="color:red; font-weight: bold" id="errorEditedGraphicEl">Error in saving graphic!</p>
+      </section>      
       <div *ngIf="index&&index!=undefined" class="fireClass">
         <p *ngIf="index&&index!=-1" class="text-center font-weight-bold">Fire index: <span
             class="fireIndex">{{ index }}</span> {{indexDescription}}</p>

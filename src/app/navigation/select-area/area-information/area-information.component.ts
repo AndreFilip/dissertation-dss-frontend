@@ -36,7 +36,7 @@ export class AreaInformationComponent implements OnInit, OnChanges {
   constructor(private areaInformationService: AreaInformationService, private router: Router) {}
 
   ngOnChanges(changes: SimpleChanges) {
-    if (!changes.latitude.firstChange || !changes.longitude.firstChange) {      
+    if ((changes.latitude && !changes.latitude.firstChange) || (changes.longitude && !changes.longitude.firstChange)) {      
       this.initializeWeatherData(this.latitude, this.longitude);     
       this.latitude = this.roundTo2Decimals(this.latitude).toString();
       this.longitude = this.roundTo2Decimals(this.longitude).toString(); 

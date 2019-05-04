@@ -23,8 +23,17 @@ export class GraphicsService {
     return this.http.post<Graphic[]>(this.basicUrl, graphics, httpOptions);    
   } 
 
+  saveGraphic(graphic: Graphic): Observable<any> {
+    return this.http.post<Graphic>(this.basicUrl + "/saveGraphic", graphic, httpOptions);    
+  } 
+
   getGraphics(): Observable<Graphic[]> {
     return this.http.get<Graphic[]>(this.basicUrl);    
+  } 
+
+  getGraphic(id: string): Observable<Graphic> {
+    let idN = +id;
+    return this.http.get<Graphic>(this.basicUrl + "/" + idN);    
   } 
 
   deleteGraphics(): Observable<any> {
