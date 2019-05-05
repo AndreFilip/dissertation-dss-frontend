@@ -11,12 +11,14 @@ a:hover{
     color: #ff9f80 !important;
 }
 
-/* .dropdown-menu {
-    background-color:#343a40;
-    margin: 0px;
-    padding: 0px;
-}
+.isDisabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    text-decoration: none;
+    pointer-events: none;
+  }
 
-.dropdown-menu .dropdown-item:hover {
-    background-color:#73808c;
-} */
+  span {
+    color: white !important;
+
+  }

@@ -1,22 +1,29 @@
 
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
   <a class="navbar-brand" routerLink="/welcome-page" routerLinkActive="active-link">Decision Support System</a>
-  <a class="nav-link" routerLink="/select-area" routerLinkActive="active-link">Map</a>
-  <a class="nav-link" routerLink="/select-area-2" routerLinkActive="active-link">Soil Data</a>
+  <a class="nav-link" routerLink="/select-area" routerLinkActive="active-link" [ngClass]="{'isDisabled':!isLoggedIn}">Map</a>
+  <a class="nav-link" routerLink="/select-area-2" routerLinkActive="active-link" [ngClass]="{'isDisabled':!isLoggedIn}">Soil Data</a>
 
-  <!-- <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#subNavbar" aria-controls="subNavbar" aria-expanded="false" aria-label="Toggle navigation">
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#subNavbar" aria-controls="subNavbar" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
 
   <div class="collapse navbar-collapse justify-content-end mr-3" id="subNavbar">
     <ul class="navbar-nav">
-      <li class="nav-item mr-2">
-          <a class="nav-link" routerLink="/log-in" routerLinkActive="active-link">Sign In</a>
+      <li class="nav-item mr-2" *ngIf="!isLoggedIn">
+          <a class="nav-link" routerLink="/log-in" routerLinkActive="active-link">Sign in</a>
         </li>
-      <li class="nav-item mr-2">
-        <a class="nav-link" routerLink="/sign-up" routerLinkActive="active-link">Sign Up</a>
-      </li>     
+      <li class="nav-item mr-2" *ngIf="!isLoggedIn">
+        <a class="nav-link" routerLink="/sign-up" routerLinkActive="active-link">Sign up</a>
+      </li>  
+      <li class="nav-item mr-2" *ngIf="isLoggedIn">       
+        <a class="nav-link"> Welcome, {{ isLoggedInUsername }}</a>
+      </li>
+      <li class="nav-item mr-2" *ngIf="isLoggedIn">
+          <a class="nav-link" (click)="logout()" routerLinkActive="active-link">Log out</a>
+        </li>    
       </ul>
-  </div> -->
+  </div>
   
 </nav>
+<!-- <li><a (click)="logout()">Logout</a></li> -->

@@ -1,0 +1,28 @@
+<div class="card" class="container">
+    <form name="form" (ngSubmit)="f.form.valid && signup()" #f="ngForm" class="card-body">
+      <h4 class="card-title text-center mb-4 mt-1">Sign up</h4>
+      <hr>
+      <div class="form-group">
+          <label for="username">Username (between 3 and 25 characters)</label>
+          <input type="text"
+            name="username" [(ngModel)]="model.username"
+              #username="ngModel" required class="form-control"  minlength="3" maxlength="25"/>
+          <div *ngIf="f.submitted
+            && !username.valid" [ngClass]="{ 'has-error': f.submitted && !username.valid }">Username is required</div>
+      </div>
+      <div class="form-group">
+          <label for="password">Password (between 3 and 25 characters)</label>
+          <input [type]="type"
+            name="password" [(ngModel)]="model.password"
+              #password="ngModel" required class="form-control" minlength="3" maxlength="25"/>
+          <input type="checkbox" (change)="type == 'password'? type = 'text': type = 'password'"  /> Show password<br>
+          <div *ngIf="f.submitted
+            && !password.valid" [ngClass]="{ 'has-error': f.submitted && !password.valid }">Password is required</div>
+      </div>
+      <div>
+          <button [disabled]="!f.form.valid" class="btn btn-primary btn-block">Sign up</button>
+          <!-- <button (click)="log()" type="button">Log</button> -->
+      </div>
+    </form>
+  </div>
+  
