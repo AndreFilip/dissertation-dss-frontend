@@ -6,7 +6,8 @@ import { AuthService } from '../../auth.service';
 import { TokenStorageService } from '../../token-storage.service';
 import { NgForm } from '@angular/forms';
 import { MaxLengthValidator} from '@angular/forms';
-
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ModalComponent } from '../../components/modal/modal.component';
 
 @Component({
   selector: 'app-signup',
@@ -24,7 +25,7 @@ export class SignupComponent implements OnInit {
 
   constructor(private route: ActivatedRoute,
         private router: Router,
-        private authService: AuthService, private tokenStorage: TokenStorageService) { }
+        private authService: AuthService, private tokenStorage: TokenStorageService, private modalService: NgbModal) { }
 
   ngOnInit() {
   }
@@ -43,7 +44,9 @@ export class SignupComponent implements OnInit {
       this.isSignUpFailed = false;
       this.tokenStorage.saveUsername(data.credentials.username);
       this.tokenStorage.saveToken(data.credentials.accessToken);
-      alert(data.result);
+      // alert(data.result);
+      this.openModal(data.result);
+
       this.router.navigate(['']);
   },
   error => {
@@ -51,9 +54,15 @@ export class SignupComponent implements OnInit {
     this.isSignedUp = false;
     this.isSignUpFailed = true;
     this.tokenStorage.signOut();
-    alert(error.error.result);
+    // alert(error.error.result);
+    this.openModal(error.error.result);
     // form.resetForm();
   });
+}
+
+openModal(message: string) {
+  let modalRef = this.modalService.open(ModalComponent);
+  modalRef.componentInstance.result = message;
 }
 
 }

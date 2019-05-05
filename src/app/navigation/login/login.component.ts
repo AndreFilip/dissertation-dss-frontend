@@ -5,12 +5,14 @@ import { Observable } from 'rxjs';
 
 import { AuthService } from '../../auth.service';
 import { TokenStorageService } from '../../token-storage.service';
-
+import { ModalComponent } from '../../components/modal/modal.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
+
 export class LoginComponent implements OnInit {
   model: any = {};
   type: string = "password";
@@ -22,7 +24,7 @@ export class LoginComponent implements OnInit {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private authService: AuthService, private tokenStorage: TokenStorageService
+        private authService: AuthService, private tokenStorage: TokenStorageService, private modalService: NgbModal
     ) { }
  
     ngOnInit() {  
@@ -39,10 +41,12 @@ export class LoginComponent implements OnInit {
           this.tokenStorage.saveToken(data.accessToken);
           this.isLoginFailed = false;
           this.isLoggedIn = true;
-          alert("Successully logged in.");
+          // alert("Successully logged in.");
+          this.openModal("Successully logged in.");
           this.router.navigate(['']);
         } else {
-          alert("Authentication failed.");
+          // alert("Authentication failed.");
+          this.openModal("Authentication failed.");
           this.tokenStorage.signOut();
         }
       },
@@ -52,22 +56,15 @@ export class LoginComponent implements OnInit {
         this.isLoginFailed = true;
         this.tokenStorage.signOut();
         if (error.status == 401) {
-          alert("Wrong credentials. Try again.");
+          // alert("Wrong credentials. Try again.");
+          this.openModal("Wrong credentials. Try again.");
         }
       });
     }
 
+    openModal(message: string) {
+        let modalRef = this.modalService.open(ModalComponent);
+        modalRef.componentInstance.result = message;
+    }
+
 }
-
-// ngOnInit() {
-//   this.info = {
-//     token: this.token.getToken(),
-//     username: this.token.getUsername(),
-//     authorities: this.token.getAuthorities()
-//   };
-// }
-
-// logout() {
-//   this.token.signOut();
-//   window.location.reload();
-// }

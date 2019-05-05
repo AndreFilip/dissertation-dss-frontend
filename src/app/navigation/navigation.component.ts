@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { TokenStorageService } from '../token-storage.service';
 import { ActivatedRoute , Router } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ModalComponent } from '../components/modal/modal.component';
 
 @Component({
   selector: 'app-navigation',
@@ -11,7 +13,7 @@ export class NavigationComponent implements OnInit {
   isLoggedIn: any;
   isLoggedInUsername: any ;
 
-  constructor(private tokenStorageService: TokenStorageService, private router: Router) { }
+  constructor(private tokenStorageService: TokenStorageService, private router: Router, private modalService: NgbModal) { }
 
   ngOnInit() {
     if (this.tokenStorageService.getToken() != null && this.tokenStorageService.getToken() != undefined) {
@@ -34,7 +36,14 @@ export class NavigationComponent implements OnInit {
   logout() {
     this.router.navigate(['']);
     this.tokenStorageService.signOut();
-    alert("Successully logged out.");    
+    // alert("Successully logged out.");    
+    this.openModal("Successully logged out.");
+
   }
+
+  openModal(message: string) {
+  let modalRef = this.modalService.open(ModalComponent);
+  modalRef.componentInstance.result = message;
+}
 
 }
