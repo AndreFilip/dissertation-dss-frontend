@@ -219,7 +219,6 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
       // when MapView gets ready
       mapView.when(() => {
         component.mapView = mapView;
-
         component.sketchViewModel = new SketchViewModel({
           view: component.mapView,
           layer: component.tempGraphicsLayer,
@@ -300,8 +299,51 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
           }
 
         });
-        component.sketchViewModel.on("update-complete", component.updateGraphic);
-        component.sketchViewModel.on("update-cancel", component.updateGraphic);
+
+        function updateGraphic(event: any) {
+            event.graphic.geometry = event.geometry;
+            //save to DB
+            component.saveGraphic(event.graphic);
+            component.mapView.goTo({
+              target: component.mapView.center,
+            });
+
+            let graphicToSave;
+            switch (event.graphic.geometry.type) {
+              case "point":
+                graphicToSave = new Graphic(event.graphic.attributes.id, event.graphic.attributes.title, event.graphic.attributes.comments, ( < any > event.graphic.geometry).latitude,
+                  ( < any > event.graphic.geometry).longitude, new Color(event.graphic.attributes.colorId, ( < any > event.graphic.symbol).color.r, ( < any > event.graphic.symbol).color.b,
+                    ( < any > event.graphic.symbol).color.g), null, event.graphic.geometry.type);
+                break;
+              case "polyline":
+                graphicToSave = new Graphic(event.graphic.attributes.id, event.graphic.attributes.title, event.graphic.attributes.comments, null, null,
+                  new Color(event.graphic.attributes.colorId, ( < any > event.graphic.symbol).color.r, ( < any > event.graphic.symbol).color.b, ( < any > event.graphic.symbol).color.g),
+                  (( < any > event.graphic.geometry).paths).toString(), event.graphic.geometry.type);
+                break;
+              case "polygon":
+                graphicToSave = new Graphic(event.graphic.attributes.id, event.graphic.attributes.title, event.graphic.attributes.comments, ( < any > event.graphic.geometry).centroid.latitude,
+                  ( < any > event.graphic.geometry).centroid.longitude, new Color(event.graphic.attributes.colorId, ( < any > event.graphic.symbol).color.r, ( < any > event.graphic.symbol).color.b, ( < any > event.graphic.symbol).color.g),
+                  (( < any > event.graphic.geometry).rings).toString(), event.graphic.geometry.type);
+                break;
+            }
+
+            component.graphicsService.saveGraphic(graphicToSave).subscribe(
+              graphic => {
+                console.log("Graphic edited successfully: " + JSON.stringify(graphic));
+                component.drawGraphicAfterLoading(graphic);
+                if (!component.selectedGraphic) {
+                  component.tempGraphicsLayer.remove(component.selectedGraphic);
+                }
+                component.showSuccessComments();
+              },
+              error => {
+                console.log("Error editing saveGraphics: " +  JSON.stringify(error));
+                component.showErrorComments();
+              }
+            );
+        }
+        component.sketchViewModel.on("update-complete", updateGraphic);
+        component.sketchViewModel.on("update-cancel", updateGraphic);
         component.setUpClickHandler();
       }).then(() => {
         this.loadGraphicsNoModal();
@@ -437,20 +479,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         }
     }
 
-  } //end drawGrahic()     
-
-  updateGraphic(event) {
-    let component = this;
-    event.graphic.geometry = event.geometry;
-    //component.tempGraphicsLayer.add(event.graphic);
-    //save to DB
-    component.saveGraphic(event.graphic);
-    //remove old version of graphic
-    //component.tempGraphicsLayer.graphics.remove(component.selectedGraphic);
-    component.mapView.goTo({
-      target: component.mapView.center,
-    });
-  }
+  } //end drawGrahic()
 
   async editTheGraphic(value: any) {
     let component = this;
