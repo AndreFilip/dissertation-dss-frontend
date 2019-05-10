@@ -34,11 +34,12 @@ export class NavigationComponent implements OnInit {
   }
 
   logout() {
-    this.router.navigate(['']);
-    this.tokenStorageService.signOut();
-    // alert("Successully logged out.");    
-    this.openModal("Successully logged out.");
-
+    let result = confirm("Are you sure you want to log out?");
+    if (result) {
+      this.router.navigate(['']);
+      this.tokenStorageService.signOut();
+      this.openModal("Successully logged out.");
+    }
   }
 
   openModal(message: string) {
