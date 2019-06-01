@@ -838,7 +838,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
   // For converting 102100 to 4326 wkid: Eg. https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer/project?f=json&inSR=102100&outSR=4326&geometries={'geometryType':'esriGeometryPolyline','geometries':[{'paths':[[[2657353.3318215227,4829996.637395144], [2647353.3318215227,4829296.637395144]]]}]}
   getLengthOfPolyline(pathsArray) {
     let component = this;
-    let url = "http://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/Geometry/GeometryServer/project?inSR=102100&outSR=4326&geometries={'geometryType':'esriGeometryPolyline','geometries':[{'paths':[[";
+    let url = "https://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/Geometry/GeometryServer/project?inSR=102100&outSR=4326&geometries={'geometryType':'esriGeometryPolyline','geometries':[{'paths':[[";
     let result2 = [];
     pathsArray[0].forEach(element => {
       result2.push(element);
@@ -871,7 +871,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
   getAreaOfPolygons(pathsArray) {
     let component = this;
     component.area = null;
-    let url = "http://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/Geometry/GeometryServer/project?inSR=102100&outSR=4326&geometries={'geometryType':'esriGeometryPolygon','geometries':[";
+    let url = "https://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/Geometry/GeometryServer/project?inSR=102100&outSR=4326&geometries={'geometryType':'esriGeometryPolygon','geometries':[";
 
     if (pathsArray.length == 1) {
       url += "{'rings':[[";
