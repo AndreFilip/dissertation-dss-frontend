@@ -25,8 +25,8 @@ export class AreaInformationService {
   private apixuID = "&appid=b296c4beb89f4875b05164715193103";
 
      
-  private weatherDataURL = 'http://api.openweathermap.org/data/2.5/weather';
-  private weatherForecastDataURL = 'http://api.openweathermap.org/data/2.5/forecast';
+  private weatherDataURL = 'https://api.openweathermap.org/data/2.5/weather';
+  private weatherForecastDataURL = 'https://api.openweathermap.org/data/2.5/forecast';
   private soilDataURL = 'https://rest.soilgrids.org/query?';
   // private mySoilResultsURL = 'http://localhost:8080/soildata';
   // private myFireDataResultsURL = 'http://localhost:8080/firedata'
