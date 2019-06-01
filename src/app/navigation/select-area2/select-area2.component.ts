@@ -46,7 +46,9 @@ export class SelectArea2Component implements OnInit {
     this.areaInformationService.getSoilResults(soil).subscribe( (results => {
       console.log(results);
       this.soilDataResults = results;
-    }));
+    }), error => {
+      console.log(error);
+    });
   }
 
   getSoilData() {

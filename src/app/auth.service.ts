@@ -11,8 +11,11 @@ const httpOptions = {
 })
 export class AuthService {
 
-  private loginUrl = 'http://localhost:8080/auth/login';
-  private signupUrl = 'http://localhost:8080/auth/register';
+  // private loginUrl = 'http://localhost:8080/auth/login';
+  // private signupUrl = 'http://localhost:8080/auth/register';
+  // https://mydssathenstech.herokuapp.com/
+  private loginUrl = 'https://mydssathenstech.herokuapp.com/auth/login';
+  private signupUrl = 'https://mydssathenstech.herokuapp.com/auth/register';
 
   constructor(private http: HttpClient) { }
 

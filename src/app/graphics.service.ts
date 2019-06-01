@@ -15,7 +15,8 @@ const httpOptions = {
 
 export class GraphicsService {
 
-  private basicUrl = 'http://localhost:8080/graphics';
+  // private basicUrl = 'http://localhost:8080/graphics';  
+  private basicUrl = 'https://mydssathenstech.herokuapp.com/graphics';
 
   constructor(private http: HttpClient) { }
 

@@ -28,8 +28,10 @@ export class AreaInformationService {
   private weatherDataURL = 'http://api.openweathermap.org/data/2.5/weather';
   private weatherForecastDataURL = 'http://api.openweathermap.org/data/2.5/forecast';
   private soilDataURL = 'https://rest.soilgrids.org/query?';
-  private mySoilResultsURL = 'http://localhost:8080/soildata';
-  private myFireDataResultsURL = 'http://localhost:8080/firedata'
+  // private mySoilResultsURL = 'http://localhost:8080/soildata';
+  // private myFireDataResultsURL = 'http://localhost:8080/firedata'
+  private mySoilResultsURL = 'https://mydssathenstech.herokuapp.com/soildata';
+  private myFireDataResultsURL = 'https://mydssathenstech.herokuapp.com/firedata'
 
   constructor(private http: HttpClient, private jsonp: Jsonp) {}
 

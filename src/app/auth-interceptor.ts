@@ -8,7 +8,9 @@ const TOKEN_HEADER_KEY = 'Authorization';
  
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-    localhost: string = "http://localhost:8080";
+    // localhost: string = "http://localhost:8080";    
+    localhost: string = "https://mydssathenstech.herokuapp.com";
+
 
     constructor(private token: TokenStorageService) { }
  
