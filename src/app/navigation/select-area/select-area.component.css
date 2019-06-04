@@ -88,3 +88,13 @@ div.scroll {
   bottom: 20px;
   right: 5px;
 }
+
+label {
+  cursor: pointer;
+}
+
+#upload-file {
+  opacity: 0;
+  position: absolute;
+  z-index: -1;
+}

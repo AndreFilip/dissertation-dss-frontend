@@ -2,9 +2,9 @@
   <div class="row mt-3">
     <div class="col-lg-2">
       <!-- Select type of graphic. Also, edit its shape or delete it.-->
-      <label for="esri-icons-navbar" class="font-weight-bold row">Actions:</label>
-      <section class="text-left row justify-content-between" id="esri-icons-navbar">
-        <div class="col-12 col-sm-4 col-lg-6">
+      <label for="esri-icons-navbar" class="font-weight-bold row" style="margin-left: 0px;margin-right: 0px; ">Actions :</label>
+      <section class="row justify-content-between" id="esri-icons-navbar" style="margin-left: 0px;margin-right: 0px; ">
+        <div class="">
         <button class="action-button esri-icon-blank-map-pin mr-1 mb-1" type="button" title="Draw a point" id="pointButton"
           #pointButton (click)="drawGrahic($event)"></button>
         <button class="action-button esri-icon-polyline mr-1 mb-1" type="button" title="Draw a polyline" id="polylineButton"
@@ -12,7 +12,7 @@
         <button class="action-button esri-icon-polygon mb-1" type="button" title="Draw a polygon" id="polygonButton"
           #polygonButton (click)="drawGrahic($event)"></button>
         </div>
-        <div class="col-12 col-sm-4 col-lg-6">
+        <div class="">
             <button class="action-button esri-icon-edit mr-1 mb-1" type="button" title="Edit graphic's shape" id="editButton"
           #resetButton (click)="drawGrahic($event)"></button>
         <button class="action-button esri-icon-erase mr-1 mb-1" type="button" title="Delete a graphic" id="resetButton"
@@ -24,9 +24,15 @@
       <!-- Change comments/title/color of a graphic-->
       <hr>
       <section>
-        <button class="btn btn-sm dropdown-toggle btn-info" type="button" data-toggle="collapse"
+          <label #files for="upload-file" class="btn btn-outline-primary btn-sm d-block">Browse . . .</label>
+           <input type="file" name="file" (change)="postMethod($event.target.files)" id="upload-file">
+        <button class="btn btn-sm btn-outline-warning btn-block" (click)="deleteFile()" *ngIf="fileExists">Delete Kml</button>
+      </section>
+      <hr>
+      <section>
+        <button class="btn btn-sm dropdown-toggle btn-info btn-block" type="button" data-toggle="collapse"
           data-target="#editgraphicarea" aria-expanded="false" aria-controls="editgraphicarea">Edit
-          graphic&nbsp;&nbsp;&nbsp;&nbsp;</button>
+          graphic&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
         <fieldset id="editgraphicarea" class="collapse mt-2" style="margin-left: 15px; margin-right: 15px;">
           <div class="row">
             <label for="changeTitle" class="font-weight-bold col-12">Title:</label>

@@ -36,6 +36,7 @@ import {
 } from '../../components/modal/modal.component';
 
 import * as $ from 'jquery';
+import { FileService } from 'src/app/file.service';
 
 @Component({
   selector: 'app-select-area',
@@ -63,15 +64,16 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
   private errorEditedGraphicEl;
   private isIndexAvailable: boolean;
   private indexDescription: string;
+  private fileExists: boolean;
 
   @ViewChild('mapViewNode') private mapViewEl: ElementRef;
   @ViewChild('streetsLayer') private streetsLayerEl: ElementRef;
   @ViewChild('fire') private fireEl: ElementRef;
+  @ViewChild('files') private files: ElementRef;
 
   constructor(private graphicsService: GraphicsService, private areaInformationService: AreaInformationService, private router: Router,
-    private modalService: NgbModal) {}
+    private modalService: NgbModal , private fileService: FileService) {}
 
-  private herokuhost: string = "https://sleepy-brook-85346.herokuapp.com";
   private localhost: string = "localhost:8080";
 
   ngOnInit() {
@@ -151,12 +153,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         opacity: 0.7,
         id: "nat_geo_layer",
         visible: false
-      });
-
-      // var kmllayer = new KMLLayer({
-      //   url: component.herokuhost + "/downloadFile/KML_Samples.kml"
-      //   // url: this.host + "/downloadFile/lines.kml"
-      // });
+      });      
 
       component.tempGraphicsLayer = new GraphicsLayer({title: "Graphics Layer"});
 
@@ -345,7 +342,10 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
         component.sketchViewModel.on("update-complete", updateGraphic);
         component.sketchViewModel.on("update-cancel", updateGraphic);
         component.setUpClickHandler();
+
       }).then(() => {
+        component.getIfExists(component);
+
         this.loadGraphicsNoModal();
       });
 
@@ -1034,4 +1034,84 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
       this.indexDescription = ""
     }
   }
+
+  postMethod(files: FileList) {
+    console.log(files);
+    if (files && files.item(0)) {
+      let fileToUpload = files.item(0); 
+      let formData = new FormData(); 
+      formData.append("file", fileToUpload); 
+      this.fileService.uploadFile(formData).subscribe( response => {
+        console.log(response);
+        this.constructKml( (<any> response));
+      }, error => {
+        console.log(error);
+      });
+    }
+  }
+
+  async constructKml(resp) {
+    try {
+      const [ KMLLayer] = await loadModules([ 
+        "esri/layers/KMLLayer"  
+      ]);
+      var kmllayer = new KMLLayer({
+        url: resp.fileDownloadUri,
+        title: "KML Layer"
+      });
+      var layer2 = this.mapView.map.layers.getItemAt(3);
+      this.mapView.map.layers.remove(layer2);
+      this.mapView.map.layers.add(kmllayer);    
+      this.fileExists = true;
+      this.files.nativeElement.innerText = resp.fileName;
+
+    } catch (error) {
+      
+    }
+
+  }
+
+  async getIfExists(component) {
+    try {
+      const [ KMLLayer] = await loadModules([ 
+        "esri/layers/KMLLayer"  
+      ]);
+      component.fileService.getIfExists().subscribe( r => {
+        console.log(r);
+        var kmllayer = new KMLLayer({
+          url: r.result,
+          title: "KML Layer"
+        });
+        component.mapView.map.layers.add(kmllayer); 
+        component.fileExists = true;          
+        component.files.nativeElement.innerText = r.filename;
+      }, e => {
+        console.log(e);
+        
+      });
+      
+  
+    } catch (error) {
+      
+    }  
+        
+
+    
+  }
+
+  deleteFile() {
+    this.fileService.deleteFile().subscribe(response => {
+      var layer = this.mapView.map.layers.getItemAt(3);
+      this.mapView.map.layers.remove(layer);
+      console.log(this.files.nativeElement);
+      this.files.nativeElement.innerText = "Browse . . .";
+      this.fileExists = false;
+    }, error => {
+      console.log(error);
+    });
+  }
+
 } //end SelectAreaComponent
+
+
+
