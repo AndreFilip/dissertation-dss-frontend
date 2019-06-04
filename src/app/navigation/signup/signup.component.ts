@@ -17,6 +17,7 @@ import { ModalComponent } from '../../components/modal/modal.component';
 export class SignupComponent implements OnInit {
   model: any = {};
   type: string = "password";
+  loading: boolean = false;
   @ViewChild('f') private form: NgForm;
 
   isSignedUp = false;
@@ -35,10 +36,12 @@ export class SignupComponent implements OnInit {
   }
 
   signup() {
+    this.loading = true;
     this.authService.signup({
       username: this.model.username,
       password: this.model.password
   }).subscribe(data => {
+      this.loading = false;
       console.log(data);
       this.isSignedUp = true;
       this.isSignUpFailed = false;
@@ -46,7 +49,6 @@ export class SignupComponent implements OnInit {
       this.tokenStorage.saveToken(data.credentials.accessToken);
       // alert(data.result);
       this.openModal(data.result);
-
       this.router.navigate(['']);
   },
   error => {
@@ -56,6 +58,7 @@ export class SignupComponent implements OnInit {
     this.tokenStorage.signOut();
     // alert(error.error.result);
     this.openModal(error.error.result);
+    this.loading = false;
     // form.resetForm();
   });
 }

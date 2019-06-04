@@ -16,6 +16,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 export class LoginComponent implements OnInit {
   model: any = {};
   type: string = "password";
+  loading: boolean = false;
 
   isLoggedIn = false;
   isLoginFailed = false;
@@ -31,6 +32,8 @@ export class LoginComponent implements OnInit {
     }
  
     login() {
+      this.loading = true;
+
         this.authService.login({
           username: this.model.username,
           password: this.model.password
@@ -49,6 +52,7 @@ export class LoginComponent implements OnInit {
           this.openModal("Authentication failed.");
           this.tokenStorage.signOut();
         }
+        this.loading = false;
       },
       error => {
         console.log(error);
@@ -59,6 +63,7 @@ export class LoginComponent implements OnInit {
           // alert("Wrong credentials. Try again.");
           this.openModal("Wrong credentials. Try again.");
         }
+        this.loading = false;
       });
     }
 

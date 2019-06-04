@@ -70,6 +70,7 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
   @ViewChild('streetsLayer') private streetsLayerEl: ElementRef;
   @ViewChild('fire') private fireEl: ElementRef;
   @ViewChild('files') private files: ElementRef;
+  @ViewChild('uploadfile') private uploadfile: ElementRef;  
 
   constructor(private graphicsService: GraphicsService, private areaInformationService: AreaInformationService, private router: Router,
     private modalService: NgbModal , private fileService: FileService) {}
@@ -1104,8 +1105,9 @@ export class SelectAreaComponent implements OnInit, OnDestroy {
       var layer = this.mapView.map.layers.getItemAt(3);
       this.mapView.map.layers.remove(layer);
       console.log(this.files.nativeElement);
-      this.files.nativeElement.innerText = "Browse . . .";
+      this.files.nativeElement.innerText = "Upload Kml";
       this.fileExists = false;
+      this.uploadfile.nativeElement.value = null;
     }, error => {
       console.log(error);
     });

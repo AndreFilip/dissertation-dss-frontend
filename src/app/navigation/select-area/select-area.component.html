@@ -24,8 +24,8 @@
       <!-- Change comments/title/color of a graphic-->
       <hr>
       <section>
-          <label #files for="upload-file" class="btn btn-outline-primary btn-sm d-block">Browse . . .</label>
-           <input type="file" name="file" (change)="postMethod($event.target.files)" id="upload-file">
+          <label #files for="upload-file" class="btn btn-outline-primary btn-sm d-block">Upload Kml</label>
+           <input type="file" name="file" (change)="postMethod($event.target.files)" id="upload-file" #uploadfile>
         <button class="btn btn-sm btn-outline-warning btn-block" (click)="deleteFile()" *ngIf="fileExists">Delete Kml</button>
       </section>
       <hr>
