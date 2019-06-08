@@ -23,7 +23,7 @@
         <span class="lds-dual-ring"></span>
       </div>
       <div>
-          <button [disabled]="!f.form.valid" class="btn btn-primary btn-block">Sign up</button>
+          <button [disabled]="!f.form.valid || loading" class="btn btn-primary btn-block">Sign up</button>
           <!-- <button (click)="log()" type="button">Log</button> -->          
       </div>
     </form>
