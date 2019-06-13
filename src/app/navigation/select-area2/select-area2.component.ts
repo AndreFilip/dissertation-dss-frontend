@@ -52,6 +52,7 @@ export class SelectArea2Component implements OnInit {
   }
 
   getSoilData() {
+    this.errormsg = null;
     this.areaInformationService.getSoilData(this.myModel.latitude, this.myModel.longitude, "sl2").subscribe( (response) => {
       console.log(response);
       let results = <any> response;
